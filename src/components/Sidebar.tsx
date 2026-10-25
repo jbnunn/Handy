@@ -105,14 +105,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               key={section.id}
               className={`flex gap-2 items-center p-2 w-full rounded-lg cursor-pointer transition-colors ${
                 isActive
-                  ? "bg-logo-primary/80"
-                  : "hover:bg-line hover:opacity-100 opacity-85"
+                  ? "bg-text/[0.07]"
+                  : "hover:bg-text/[0.04] hover:opacity-100 opacity-70"
               }`}
               onClick={() => onSectionChange(section.id)}
             >
               <Icon width={24} height={24} className="shrink-0" />
               <p
-                className="text-sm font-medium truncate"
+                className={`text-sm truncate ${isActive ? "font-semibold" : "font-medium"}`}
                 title={t(section.labelKey)}
               >
                 {t(section.labelKey)}
