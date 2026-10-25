@@ -9,14 +9,18 @@
   /* Palette source of truth. Each themed color is defined once as a
      light/dark pair; the active tokens below and the `data-theme` overrides
      in App.css reference these, so a hex value lives in exactly one place. */
-  --light-color-text: #0f0f0f;
-  --light-color-background: #fbfbfb;
-  --light-color-logo-primary: #faa2ca;
-  --light-color-logo-stroke: #382731;
+  --light-color-text: #1a1a1a;
+  --light-color-background: #fcfcfb;
+  --light-color-logo-primary: #a26ec1;
+  --light-color-logo-stroke: #1a1a1a;
 
-  --dark-color-text: #fbfbfb;
-  --dark-color-background: #2c2b29;
-  --dark-color-logo-primary: #f28cbb;
+  --dark-color-text: #e9e8e1;
+  --dark-color-background: #1a1a1a;
+  --dark-color-logo-primary: #d2ace9;
+
+  /* Primary actions: near-black on light, sand on dark. */
+  --light-color-background-ui: #1a1a1a;
+  --dark-color-background-ui: #e9e8e1;
 
   /* Status colors. Each has a -wash tint below. */
   --light-color-warning: #d97706;
@@ -24,7 +28,7 @@
   --dark-color-warning: #fbbf24;
   --dark-color-error: #f87171;
 
-  /* Success. Pink already means "recording", so it gets its own hue. */
+  /* Success. Lavender already means "recording", so it gets its own hue. */
   --light-color-moss: #2f7d5b;
   --dark-color-moss: #86c9a4;
 
@@ -55,25 +59,25 @@
     ),
     radial-gradient(
       90% 80% at 5% -5%,
-      color-mix(in srgb, #c7b9ef 55%, #fbfbfb) 0%,
+      color-mix(in srgb, #f0d7ff 70%, #fcfcfb) 0%,
       transparent 62%
     ),
-    color-mix(in srgb, #e9e1f3 60%, #fbfbfb);
+    #f5f4f0;
   --dark-demo-wallpaper:
     radial-gradient(
       110% 80% at 90% 105%,
-      color-mix(in srgb, var(--dark-color-logo-primary) 26%, #1b1719) 0%,
+      color-mix(in srgb, var(--dark-color-logo-primary) 22%, #1a1a1a) 0%,
       transparent 60%
     ),
     radial-gradient(
       90% 80% at 5% -5%,
-      color-mix(in srgb, #7c68c0 38%, #1b1719) 0%,
+      color-mix(in srgb, #6c358c 38%, #1a1a1a) 0%,
       transparent 62%
     ),
-    #1f1a1e;
+    #202020;
 
-  /* The wordmark. Dark mode outlines it in white to cut down on pinks. */
-  --light-color-wordmark: var(--light-color-logo-primary);
+  /* The wordmark: soft lavender fill, outlined in ink. */
+  --light-color-wordmark: #f0d7ff;
   --light-color-wordmark-stroke: var(--light-color-logo-stroke);
   --dark-color-wordmark: var(--dark-color-logo-primary);
   --dark-color-wordmark-stroke: var(--dark-color-text);
@@ -124,7 +128,6 @@
   );
 
   /* Tokens that do not change between light and dark */
-  --color-background-ui: #da5893;
   --color-mid-gray: #808080;
 
   /* Active palette — defaults to light, follows the OS via the media query
@@ -132,6 +135,7 @@
   --color-text: var(--light-color-text);
   --color-background: var(--light-color-background);
   --color-logo-primary: var(--light-color-logo-primary);
+  --color-background-ui: var(--light-color-background-ui);
   --color-warning: var(--light-color-warning);
   --color-error: var(--light-color-error);
   --color-moss: var(--light-color-moss);
@@ -170,6 +174,8 @@
     --color-text: var(--dark-color-text);
     --color-background: var(--dark-color-background);
     --color-logo-primary: var(--dark-color-logo-primary);
+    --color-background-ui: var(--dark-color-background-ui);
+    --color-background-ui: var(--dark-color-background-ui);
     --color-warning: var(--dark-color-warning);
     --color-error: var(--dark-color-error);
     --color-moss: var(--dark-color-moss);
@@ -203,6 +209,7 @@
   --color-text: var(--light-color-text);
   --color-background: var(--light-color-background);
   --color-logo-primary: var(--light-color-logo-primary);
+  --color-background-ui: var(--light-color-background-ui);
   --color-warning: var(--light-color-warning);
   --color-error: var(--light-color-error);
   --color-moss: var(--light-color-moss);
@@ -225,6 +232,7 @@
   --color-text: var(--dark-color-text);
   --color-background: var(--dark-color-background);
   --color-logo-primary: var(--dark-color-logo-primary);
+  --color-background-ui: var(--dark-color-background-ui);
   --color-warning: var(--dark-color-warning);
   --color-error: var(--dark-color-error);
   --color-moss: var(--dark-color-moss);

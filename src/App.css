@@ -39,12 +39,14 @@
 /* Onboarding's scale in px (rem steps land on fractions at a 15px root).
    Names avoid Tailwind's defaults, which Settings still uses. */
 @theme {
+  --font-sans:
+    "Figtree Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display:
-    ui-rounded, "SF Pro Rounded", system-ui, -apple-system,
+    "Figtree Variable", ui-rounded, "SF Pro Rounded", system-ui, -apple-system,
     "Segoe UI Variable Display", "Segoe UI", sans-serif;
   --font-ui:
-    system-ui, -apple-system, "Segoe UI Variable Text", "Segoe UI", Roboto,
-    "Noto Sans", sans-serif;
+    "Figtree Variable", system-ui, -apple-system, "Segoe UI Variable Text",
+    "Segoe UI", Roboto, "Noto Sans", sans-serif;
   --font-cjk-subset:
     "Handy CJK Subset", -apple-system, "Segoe UI Variable Text", "Segoe UI",
     system-ui, sans-serif;
