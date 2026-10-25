@@ -11,12 +11,12 @@
      in App.css reference these, so a hex value lives in exactly one place. */
   --light-color-text: #1a1a1a;
   --light-color-background: #fcfcfb;
-  --light-color-logo-primary: #a26ec1;
+  --light-color-logo-primary: #4d4a42;
   --light-color-logo-stroke: #1a1a1a;
 
   --dark-color-text: #e9e8e1;
   --dark-color-background: #1a1a1a;
-  --dark-color-logo-primary: #d2ace9;
+  --dark-color-logo-primary: #c5c0b3;
 
   /* Primary actions: near-black on light, sand on dark. */
   --light-color-background-ui: #1a1a1a;
@@ -28,7 +28,7 @@
   --dark-color-warning: #fbbf24;
   --dark-color-error: #f87171;
 
-  /* Success. Lavender already means "recording", so it gets its own hue. */
+  /* Success. The rest of the palette is neutral, so it gets its own hue. */
   --light-color-moss: #2f7d5b;
   --dark-color-moss: #86c9a4;
 
@@ -59,7 +59,7 @@
     ),
     radial-gradient(
       90% 80% at 5% -5%,
-      color-mix(in srgb, #f0d7ff 70%, #fcfcfb) 0%,
+      color-mix(in srgb, #eeebe3 80%, #fcfcfb) 0%,
       transparent 62%
     ),
     #f5f4f0;
@@ -71,13 +71,13 @@
     ),
     radial-gradient(
       90% 80% at 5% -5%,
-      color-mix(in srgb, #6c358c 38%, #1a1a1a) 0%,
+      color-mix(in srgb, #464544 60%, #1a1a1a) 0%,
       transparent 62%
     ),
     #202020;
 
-  /* The wordmark: soft lavender fill, outlined in ink. */
-  --light-color-wordmark: #f0d7ff;
+  /* The wordmark: sand fill, outlined in ink. */
+  --light-color-wordmark: #eeebe3;
   --light-color-wordmark-stroke: var(--light-color-logo-stroke);
   --dark-color-wordmark: var(--dark-color-logo-primary);
   --dark-color-wordmark-stroke: var(--dark-color-text);
