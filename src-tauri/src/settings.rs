@@ -1,4 +1,3 @@
-use crate::utils;
 use log::{debug, warn};
 use serde::de::{self, Visitor};
 use serde::{Deserialize, Deserializer, Serialize};
@@ -1338,13 +1337,11 @@ fn os_languages() -> &'static [String] {
     }
 }
 
-/// Update checks are forced off (without touching the persisted setting) when
-/// `HANDY_DISABLE_UPDATER` is set — e.g. by the Nix package, since self-update
-/// can't work against an immutable /nix/store install.
+/// Update checks are always forced off in this fork: upstream releases would
+/// replace it with the stock build. (Upstream only forces them off when
+/// `HANDY_DISABLE_UPDATER` is set, e.g. by the Nix package.)
 pub fn update_checks_forced_disabled() -> bool {
-    use std::sync::OnceLock;
-    static IS_UPDATER_DISABLED: OnceLock<bool> = OnceLock::new();
-    *IS_UPDATER_DISABLED.get_or_init(|| utils::env_flag_enabled("HANDY_DISABLE_UPDATER"))
+    true
 }
 
 /// Effective updater state: the user's stored preference, overridden to `false`
