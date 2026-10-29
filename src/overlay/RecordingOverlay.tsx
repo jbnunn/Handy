@@ -2,6 +2,7 @@ import { listen } from "@tauri-apps/api/event";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "./RecordingOverlay.css";
+import Halo, { HALO_SUPPORTED } from "./Halo";
 import { commands, events } from "@/bindings";
 import type {
   StreamPhase,
@@ -63,6 +64,8 @@ const RecordingOverlay: React.FC = () => {
   const [overflowing, setOverflowing] = useState(false);
 
   const smoothedLevelsRef = useRef<number[]>(Array(16).fill(0));
+  // Raw overall mic level (0..1) for the Halo, which smooths it per frame.
+  const haloLevelRef = useRef(0);
   // Live-text scroll-back: the text region "sticks" to the newest line while the
   // user is at the bottom; if they scroll up to read history, auto-follow pauses
   // until they scroll back down.
@@ -81,6 +84,7 @@ const RecordingOverlay: React.FC = () => {
           setCaptureReady(false);
           smoothedLevelsRef.current = Array(16).fill(0);
           setLevels(Array(WAVE_BARS).fill(0));
+          haloLevelRef.current = 0;
           setStreamText({ committed: "", tentative: "" });
         }
 
@@ -127,6 +131,9 @@ const RecordingOverlay: React.FC = () => {
           return prev * 0.7 + target * 0.3;
         });
         smoothedLevelsRef.current = smoothed;
+        haloLevelRef.current =
+          newLevels.slice(0, WAVE_BARS).reduce((sum, v) => sum + (v || 0), 0) /
+          WAVE_BARS;
         setLevels(smoothed.slice(0, WAVE_BARS));
       });
 
@@ -211,7 +218,16 @@ const RecordingOverlay: React.FC = () => {
     setOverflowing(false);
   }, [session]);
 
-  if (!isVisible) return null;
+  // Minimal-mode recording shows the Halo instead of the pill. It stays mounted
+  // through hide and the hand-off to the working pill so it can collapse out.
+  const haloActive = HALO_SUPPORTED && isVisible && state === "recording";
+  const halo = HALO_SUPPORTED && (
+    <Halo active={haloActive} ready={captureReady} levelRef={haloLevelRef} />
+  );
+
+  if (!isVisible) {
+    return halo ? <div className={`ov-stage ${position}`}>{halo}</div> : null;
+  }
 
   // Re-pin when the user is within ~a line of the bottom; unpin otherwise.
   const handleStreamScroll = () => {
@@ -357,11 +373,14 @@ const RecordingOverlay: React.FC = () => {
       dir={direction}
       className={`ov-stage ${position} ov-fade ${isVisible ? "show" : ""}`}
     >
-      <div
-        className={`scard compact ${working && isVisible ? "cworking" : ""}`}
-      >
-        {working ? workingRow(workLabel, true) : listeningRow(false, true)}
-      </div>
+      {halo}
+      {!haloActive && (
+        <div
+          className={`scard compact ${working && isVisible ? "cworking" : ""}`}
+        >
+          {working ? workingRow(workLabel, true) : listeningRow(false, true)}
+        </div>
+      )}
     </div>
   );
 };
