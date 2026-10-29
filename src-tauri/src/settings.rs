@@ -153,6 +153,7 @@ pub enum OverlayIndicator {
     #[serde(alias = "nebula")]
     Halo,
     Aurora,
+    Opal,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type, Default)]

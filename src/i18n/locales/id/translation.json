@@ -514,7 +514,8 @@
           "description": "Animasi yang ditampilkan saat Anda menahan pintasan untuk merekam.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora"
+            "aurora": "Aurora",
+            "opal": "Opal"
           }
         }
       },

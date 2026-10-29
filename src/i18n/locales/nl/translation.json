@@ -514,7 +514,8 @@
           "description": "De animatie die wordt getoond terwijl je de sneltoets ingedrukt houdt om op te nemen.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora"
+            "aurora": "Aurora",
+            "opal": "Opal"
           }
         }
       },

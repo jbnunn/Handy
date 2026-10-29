@@ -514,7 +514,8 @@
           "description": "녹음하려고 단축키를 누르고 있는 동안 표시되는 애니메이션입니다.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora"
+            "aurora": "Aurora",
+            "opal": "Opal"
           }
         }
       },

@@ -514,7 +514,8 @@
           "description": "The animation shown while you hold the shortcut to record.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora"
+            "aurora": "Aurora",
+            "opal": "Opal"
           }
         }
       },

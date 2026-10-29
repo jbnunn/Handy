@@ -739,6 +739,7 @@ pub fn change_overlay_indicator_setting(app: AppHandle, indicator: String) -> Re
     settings.overlay_indicator = match indicator.as_str() {
         "halo" => OverlayIndicator::Halo,
         "aurora" => OverlayIndicator::Aurora,
+        "opal" => OverlayIndicator::Opal,
         other => {
             warn!("Invalid overlay indicator '{}', defaulting to halo", other);
             OverlayIndicator::Halo

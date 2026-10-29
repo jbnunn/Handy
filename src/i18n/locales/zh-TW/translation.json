@@ -514,7 +514,8 @@
           "description": "按住快捷鍵錄音時顯示的動畫。",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora"
+            "aurora": "Aurora",
+            "opal": "Opal"
           }
         }
       },

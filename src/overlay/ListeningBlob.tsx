@@ -80,6 +80,40 @@ void main(){
   gl_FragColor = light(col * env * (0.95 + 0.6 * lvl) * show);
 }`;
 
+// A solid, slightly lumpy pearl with thin-film color sliding across it and a
+// soft glow. The outline breathes with the voice; while thinking the film holds
+// still and the pearl gently swells and brightens.
+const OPAL = `${COMMON}
+void main(){
+  float scale = 0.5 * min(res.x, res.y);
+  vec2 p = (gl_FragCoord.xy - 0.5 * res) / scale;
+  float r = length(p), th = atan(p.y, p.x);
+  float open = 1.0 - pow(1.0 - show, 3.0);
+  float R = 0.5 * (0.3 + 0.7 * open)
+          + 0.04 * sin(3.0 * th + t * 0.9) + 0.03 * sin(5.0 * th - t * 1.3)
+          + 0.05 * (noise(p * 2.0 + t * 0.3) - 0.5)
+          + lvl * (0.05 + 0.04 * sin(4.0 * th + t * 2.5))
+          + think * 0.025 * pulse;
+  float d = r - R;
+  float cover = smoothstep(1.5 / scale, -1.5 / scale, d);
+  // Fake sphere depth drives the film color and the bright rim.
+  float q = min(r / R, 1.0), z = sqrt(1.0 - q * q);
+  float film = z * 1.1 + 0.12 * sin(th * 2.0 + t * 0.4)
+             + 0.55 * noise(p * 2.4 + vec2(t * 0.25, -t * 0.2)) + t * 0.05;
+  vec3 col = hsl(film + 0.5, 0.78, 0.6 + 0.16 * z);
+  col = mix(col, vec3(1.0), pow(1.0 - z, 3.0) * 0.4);
+  vec2 sp = p - vec2(-0.42, 0.48) * R;
+  col += exp(-dot(sp, sp) / (0.03 * R * R)) * 0.85;
+  col *= 1.0 - think * (0.15 - 0.2 * pulse);
+  col = clamp(col, 0.0, 1.0);
+  float glow = d > 0.0 ? exp(-d * 9.0) * (0.35 + 0.3 * lvl) : 0.0;
+  glow *= smoothstep(1.0, 0.8, r);
+  vec3 glowCol = hsl(th / 6.2831853 + 0.15 + t * 0.05, 0.9, 0.65);
+  float a = cover + glow * (1.0 - cover);
+  vec3 rgb = col * cover + glowCol * glow * (1.0 - cover);
+  gl_FragColor = vec4(rgb, a) * show;
+}`;
+
 interface BlobSpec {
   frag: string;
   /** Visible size in CSS px; must fit the overlay window (overlay.rs). */
@@ -92,6 +126,7 @@ interface BlobSpec {
 const BLOBS: Record<OverlayIndicator, BlobSpec> = {
   halo: { frag: HALO, width: 100, height: 100, soft: false },
   aurora: { frag: AURORA, width: 240, height: 90, soft: true },
+  opal: { frag: OPAL, width: 100, height: 100, soft: false },
 };
 
 type Renderer = (

@@ -514,7 +514,8 @@
           "description": "Animationen, der vises, mens du holder genvejen nede for at optage.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora"
+            "aurora": "Aurora",
+            "opal": "Opal"
           }
         }
       },
