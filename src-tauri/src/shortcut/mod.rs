@@ -761,6 +761,7 @@ pub fn change_overlay_style_setting(app: AppHandle, style: String) -> Result<(),
         "none" => OverlayStyle::None,
         "minimal" => OverlayStyle::Minimal,
         "live" => OverlayStyle::Live,
+        "focus" => OverlayStyle::Focus,
         other => {
             warn!("Invalid overlay style '{}', defaulting to minimal", other);
             OverlayStyle::Minimal

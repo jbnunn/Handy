@@ -134,7 +134,8 @@ pub enum OverlayPosition {
 
 /// Which recording overlay to display. `Minimal` and `Live` share one base
 /// (the pill); `Live` grows into the panel that shows live transcription text.
-/// `None` hides the overlay entirely. Decoupled from whether the model runs in
+/// `None` hides the overlay entirely. `Focus` dims the whole screen and shows
+/// the recording animation large in the center. Decoupled from whether the model runs in
 /// streaming mode (that is driven purely by model capability).
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type)]
 #[serde(rename_all = "lowercase")]
@@ -142,6 +143,7 @@ pub enum OverlayStyle {
     None,
     Minimal,
     Live,
+    Focus,
 }
 
 /// The animated shape the overlay shows while recording (in place of the pill).

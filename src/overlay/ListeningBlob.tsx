@@ -218,6 +218,8 @@ interface ListeningBlobProps {
   ready: boolean;
   /** Latest raw mic level, 0..1. Read every frame; smoothed here. */
   levelRef: React.MutableRefObject<number>;
+  /** Size multiplier (focus mode draws it larger). Fixed for a mount. */
+  scale?: number;
 }
 
 const ListeningBlob: React.FC<ListeningBlobProps> = ({
@@ -226,8 +228,11 @@ const ListeningBlob: React.FC<ListeningBlobProps> = ({
   thinking,
   ready,
   levelRef,
+  scale = 1,
 }) => {
   const spec = BLOBS[indicator] ?? BLOBS.aurora;
+  const width = spec.width * scale;
+  const height = spec.height * scale;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const targetRef = useRef(0);
   const thinkingRef = useRef(false);
@@ -273,8 +278,8 @@ const ListeningBlob: React.FC<ListeningBlobProps> = ({
       soft += (lvl - soft) * (1 - Math.exp(-dt * 4));
       const dpr = window.devicePixelRatio || 1;
       render?.(
-        Math.round(spec.width * dpr),
-        Math.round(spec.height * dpr),
+        Math.round(width * dpr),
+        Math.round(height * dpr),
         clock,
         spec.soft ? soft : lvl,
         show,
@@ -300,7 +305,7 @@ const ListeningBlob: React.FC<ListeningBlobProps> = ({
       cancelAnimationFrame(raf);
       loopRef.current = null;
     };
-  }, [spec, levelRef]);
+  }, [spec, width, height, levelRef]);
 
   useEffect(() => {
     if (active) loopRef.current?.();
@@ -310,7 +315,7 @@ const ListeningBlob: React.FC<ListeningBlobProps> = ({
     <canvas
       ref={canvasRef}
       className="blob"
-      style={{ width: spec.width, height: spec.height }}
+      style={{ width, height }}
       aria-hidden="true"
     />
   );

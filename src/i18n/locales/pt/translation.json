@@ -494,11 +494,12 @@
       "overlay": {
         "style": {
           "title": "Sobreposição",
-          "description": "Escolha a sobreposição de gravação: 'Nenhum' a oculta, 'Minimalista' mostra um indicador compacto, 'Ao vivo' mostra a transcrição em tempo real enquanto você fala (apenas modelos com suporte a streaming — procure o selo 'Streaming' no seletor de modelos). No Linux, recomenda-se 'Nenhum'.",
+          "description": "Escolha a sobreposição de gravação: 'Nenhum' a oculta, 'Minimalista' mostra um indicador compacto, 'Ao vivo' mostra a transcrição em tempo real enquanto você fala (apenas modelos com suporte a streaming — procure o selo 'Streaming' no seletor de modelos). No Linux, recomenda-se 'Nenhum'. 'Foco' escurece a tela e mostra a animação no centro.",
           "options": {
             "none": "Nenhum",
             "minimal": "Minimalista",
-            "live": "Ao vivo"
+            "live": "Ao vivo",
+            "focus": "Foco"
           }
         },
         "position": {

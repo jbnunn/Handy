@@ -67,6 +67,26 @@ fn overlay_dimensions(state: &str, indicator: OverlayIndicator) -> (f64, f64) {
     }
 }
 
+/// Focus mode: the overlay covers the whole monitor under the cursor (dimmed
+/// in CSS) with the animation in the center, and lets clicks pass through.
+fn is_focus(app_handle: &AppHandle) -> bool {
+    settings::get_settings(app_handle).overlay_style == OverlayStyle::Focus
+}
+
+/// Overlay window size (logical) for a state, honoring the current style.
+fn overlay_window_size(app_handle: &AppHandle, state: &str) -> (f64, f64) {
+    if is_focus(app_handle) {
+        if let Some(monitor) = get_monitor_with_cursor(app_handle) {
+            let scale = monitor.scale_factor();
+            return (
+                monitor.size().width as f64 / scale,
+                monitor.size().height as f64 / scale,
+            );
+        }
+    }
+    overlay_dimensions(state, settings::get_settings(app_handle).overlay_indicator)
+}
+
 static LAST_MIC_LEVEL_EMIT: AtomicU64 = AtomicU64::new(0);
 const EMIT_THROTTLE_MS: u64 = 33; // ~30 FPS
 
@@ -85,7 +105,21 @@ const OVERLAY_BOTTOM_OFFSET: f64 = 40.0;
 /// commits anchor and margin changes itself, including while the surface is
 /// mapped, so changing position does not require a manual hide/show cycle.
 #[cfg(target_os = "linux")]
-fn configure_layer_shell_position(gtk_window: &gtk::ApplicationWindow, position: OverlayPosition) {
+fn configure_layer_shell_position(
+    gtk_window: &gtk::ApplicationWindow,
+    position: OverlayPosition,
+    fill: bool,
+) {
+    if fill {
+        for edge in [Edge::Top, Edge::Bottom, Edge::Left, Edge::Right] {
+            gtk_window.set_anchor(edge, true);
+            gtk_window.set_layer_shell_margin(edge, 0);
+        }
+        return;
+    }
+    gtk_window.set_anchor(Edge::Left, false);
+    gtk_window.set_anchor(Edge::Right, false);
+
     let (edge, opposite_edge, margin) = match position {
         OverlayPosition::Top => (Edge::Top, Edge::Bottom, OVERLAY_TOP_OFFSET),
         OverlayPosition::Bottom => (Edge::Bottom, Edge::Top, OVERLAY_BOTTOM_OFFSET),
@@ -106,12 +140,13 @@ fn configure_layer_shell_position(gtk_window: &gtk::ApplicationWindow, position:
 fn configure_layer_shell_surface(
     gtk_window: &gtk::ApplicationWindow,
     position: OverlayPosition,
+    fill: bool,
     width: f64,
     height: f64,
 ) {
     use gtk::prelude::{GtkWindowExt, WidgetExt};
 
-    configure_layer_shell_position(gtk_window, position);
+    configure_layer_shell_position(gtk_window, position, fill);
 
     gtk_window.set_size_request(
         width.round().max(1.0) as i32,
@@ -141,7 +176,13 @@ fn init_gtk_layer_shell(overlay_window: &tauri::webview::WebviewWindow) -> bool 
         gtk_window.set_exclusive_zone(0);
 
         let overlay_position = settings::get_settings(overlay_window.app_handle()).overlay_position;
-        configure_layer_shell_surface(&gtk_window, overlay_position, OVERLAY_WIDTH, OVERLAY_HEIGHT);
+        configure_layer_shell_surface(
+            &gtk_window,
+            overlay_position,
+            false,
+            OVERLAY_WIDTH,
+            OVERLAY_HEIGHT,
+        );
 
         let initialized = gtk_window.is_layer_window();
         LAYER_SHELL_ACTIVE.store(initialized, Ordering::SeqCst);
@@ -260,6 +301,9 @@ fn calculate_overlay_position(
     let monitor_width = monitor.size().width as f64 / scale;
 
     let settings = settings::get_settings(app_handle);
+    if settings.overlay_style == OverlayStyle::Focus {
+        return Some((monitor_x, monitor_y));
+    }
 
     let x = monitor_x + (monitor_width - width) / 2.0;
     let y = match settings.overlay_position {
@@ -352,15 +396,25 @@ fn place_windows_overlay(
     let monitor = get_monitor_with_cursor(app_handle)
         .ok_or_else(|| "failed to determine the monitor containing the cursor".to_string())?;
     let text_scale = windows_text_scale_factor();
-    let (x, y, width, height) = windows_overlay_bounds(
-        *monitor.position(),
-        *monitor.size(),
-        monitor.scale_factor(),
-        text_scale,
-        logical_width,
-        logical_height,
-        settings::get_settings(app_handle).overlay_position,
-    );
+    let (x, y, width, height) = if is_focus(app_handle) {
+        let (position, size) = (*monitor.position(), *monitor.size());
+        (
+            position.x,
+            position.y,
+            size.width as i32,
+            size.height as i32,
+        )
+    } else {
+        windows_overlay_bounds(
+            *monitor.position(),
+            *monitor.size(),
+            monitor.scale_factor(),
+            text_scale,
+            logical_width,
+            logical_height,
+            settings::get_settings(app_handle).overlay_position,
+        )
+    };
     let hwnd = overlay_window
         .hwnd()
         .map_err(|error| format!("failed to get overlay window handle: {error}"))?;
@@ -513,10 +567,15 @@ fn show_overlay_state(app_handle: &AppHandle, state: &str) {
 }
 
 fn show_overlay_state_on_main(app_handle: &AppHandle, state: &str) {
-    // Size the overlay for this state (compact vs. streaming), then position it.
-    let indicator = settings::get_settings(app_handle).overlay_indicator;
-    let (width, height) = overlay_dimensions(state, indicator);
+    // Size the overlay for this state (compact vs. streaming, or the whole
+    // screen in focus mode), then position it.
+    let focus = is_focus(app_handle);
+    let (width, height) = overlay_window_size(app_handle, state);
     if let Some(overlay_window) = app_handle.get_webview_window("recording_overlay") {
+        // A full-screen overlay must never swallow clicks meant for the apps
+        // under it; the compact one keeps its clickable cancel button.
+        let _ = overlay_window.set_ignore_cursor_events(focus);
+
         // Invalidate any delayed hide still in flight from a previous session
         // (see `hide_recording_overlay`).
         OVERLAY_SHOW_GENERATION.fetch_add(1, Ordering::SeqCst);
@@ -526,7 +585,7 @@ fn show_overlay_state_on_main(app_handle: &AppHandle, state: &str) {
             let position = settings::get_settings(app_handle).overlay_position;
             match overlay_window.gtk_window() {
                 Ok(gtk_window) => {
-                    configure_layer_shell_surface(&gtk_window, position, width, height)
+                    configure_layer_shell_surface(&gtk_window, position, focus, width, height)
                 }
                 Err(error) => log::error!("Failed to access GTK overlay window: {error}"),
             }
@@ -650,7 +709,9 @@ fn update_overlay_position_on_main(app_handle: &AppHandle) {
         if LAYER_SHELL_ACTIVE.load(Ordering::SeqCst) {
             let position = settings::get_settings(app_handle).overlay_position;
             match overlay_window.gtk_window() {
-                Ok(gtk_window) => configure_layer_shell_position(&gtk_window, position),
+                Ok(gtk_window) => {
+                    configure_layer_shell_position(&gtk_window, position, is_focus(app_handle))
+                }
                 Err(error) => log::error!("Failed to access GTK overlay window: {error}"),
             }
             return;
@@ -663,8 +724,7 @@ fn update_overlay_position_on_main(app_handle: &AppHandle) {
             } else {
                 "recording"
             };
-            let indicator = settings::get_settings(app_handle).overlay_indicator;
-            let (width, height) = overlay_dimensions(state, indicator);
+            let (width, height) = overlay_window_size(app_handle, state);
             if let Err(error) = place_windows_overlay(app_handle, &overlay_window, width, height) {
                 log::error!("Failed to update recording overlay position: {error}");
             }

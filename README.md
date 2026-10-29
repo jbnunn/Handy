@@ -19,7 +19,7 @@ The default recording animation is a set of drifting sine waves, so the name fit
 
 ## What's different from Handy
 
-- **Recording animations:** Instead of the recording pill, Sine shows an animated shape while you hold the shortcut. Aurora (the default) is three drifting ribbons of light, Halo is a spinning ring of color, and Opal is a translucent pearl. They react to your voice, and when you let go they stop moving and pulse until the text is pasted. Pick one in **Settings → Advanced → Recording Animation**.
+- **Recording animations:** Instead of the recording pill, Sine shows an animated shape while you hold the shortcut. Aurora (the default) is three drifting ribbons of light, Halo is a spinning ring of color, and Opal is a translucent pearl. They react to your voice, and when you let go they stop moving and pulse until the text is pasted. Pick one in **Settings → Advanced → Recording Animation**. Set **Overlay** to **Focus** and Sine dims the whole screen while you talk, with the animation large in the center.
 - **A new look:** a warm neutral theme with a monochrome accent, and a new icon of three sine ribbons drawn like the Aurora animation.
 - **No update checks:** Sine never checks for updates, since there are no Sine releases to update to.
 - **Its own identity:** the app ID is `com.jbnunn.sine`, so Sine installs alongside Handy and keeps its own settings and models.

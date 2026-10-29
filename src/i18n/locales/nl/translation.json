@@ -494,11 +494,12 @@
       "overlay": {
         "style": {
           "title": "Overlay",
-          "description": "Kies de opname-overlay: 'Geen' verbergt deze, 'Minimaal' toont een compacte balk, 'Live' toont de tekst in realtime tijdens het spreken (alleen voor streaming-modellen). Op Linux wordt 'Geen' aanbevolen.",
+          "description": "Kies de opname-overlay: 'Geen' verbergt deze, 'Minimaal' toont een compacte balk, 'Live' toont de tekst in realtime tijdens het spreken (alleen voor streaming-modellen). Op Linux wordt 'Geen' aanbevolen. 'Focus' dimt het scherm en toont de animatie in het midden.",
           "options": {
             "none": "Geen",
             "minimal": "Minimaal",
-            "live": "Live"
+            "live": "Live",
+            "focus": "Focus"
           }
         },
         "position": {

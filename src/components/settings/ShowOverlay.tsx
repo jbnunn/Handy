@@ -32,6 +32,10 @@ export const ShowOverlay: React.FC<ShowOverlayProps> = React.memo(
         value: "live",
         label: t("settings.advanced.overlay.style.options.live"),
       },
+      {
+        value: "focus",
+        label: t("settings.advanced.overlay.style.options.focus"),
+      },
     ];
 
     const positionOptions = [
@@ -79,7 +83,7 @@ export const ShowOverlay: React.FC<ShowOverlayProps> = React.memo(
           />
         </SettingContainer>
 
-        {selectedStyle !== "none" && (
+        {selectedStyle !== "none" && selectedStyle !== "focus" && (
           <SettingContainer
             title={t("settings.advanced.overlay.position.title")}
             description={t("settings.advanced.overlay.position.description")}

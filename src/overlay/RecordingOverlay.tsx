@@ -67,6 +67,8 @@ const RecordingOverlay: React.FC = () => {
   const smoothedLevelsRef = useRef<number[]>(Array(16).fill(0));
   // Which recording animation to show (read from settings on each show).
   const [indicator, setIndicator] = useState<OverlayIndicator>("aurora");
+  // Focus style: the window covers the screen, dimmed, with the blob centered.
+  const [focus, setFocus] = useState(false);
   // Raw overall mic level (0..1) for the blob, which smooths it per frame.
   const blobLevelRef = useRef(0);
   // Live-text scroll-back: the text region "sticks" to the newest line while the
@@ -101,6 +103,7 @@ const RecordingOverlay: React.FC = () => {
               settings.data.overlay_position === "top" ? "top" : "bottom",
             );
             setIndicator(settings.data.overlay_indicator ?? "aurora");
+            setFocus(settings.data.overlay_style === "focus");
           }
         } catch {
           // Keep the previous/default placement if settings can't be read.
@@ -231,8 +234,9 @@ const RecordingOverlay: React.FC = () => {
     BLOB_SUPPORTED && isVisible && (state === "recording" || blobThinking);
   const blob = BLOB_SUPPORTED && (
     <ListeningBlob
-      key={indicator}
+      key={`${indicator}-${focus}`}
       indicator={indicator}
+      scale={focus ? 2 : 1}
       active={blobActive}
       thinking={blobThinking}
       ready={captureReady}
@@ -240,8 +244,20 @@ const RecordingOverlay: React.FC = () => {
     />
   );
 
+  // Focus mode's screen dim. It is the first child in both the hidden and the
+  // visible tree so React keeps the element and its fade-out can play.
+  const stageClass = focus ? "focus" : position;
+  const dim = focus && (
+    <div className={`ov-dim ${isVisible ? "show" : ""}`} aria-hidden="true" />
+  );
+
   if (!isVisible) {
-    return blob ? <div className={`ov-stage ${position}`}>{blob}</div> : null;
+    return blob || dim ? (
+      <div className={`ov-stage ${stageClass}`}>
+        {dim}
+        {blob}
+      </div>
+    ) : null;
   }
 
   // Re-pin when the user is within ~a line of the bottom; unpin otherwise.
@@ -387,8 +403,9 @@ const RecordingOverlay: React.FC = () => {
   return (
     <div
       dir={direction}
-      className={`ov-stage ${position} ov-fade ${isVisible ? "show" : ""}`}
+      className={`ov-stage ${stageClass} ov-fade ${isVisible ? "show" : ""}`}
     >
+      {dim}
       {blob}
       {!blobActive && (
         <div

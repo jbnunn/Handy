@@ -494,11 +494,12 @@
       "overlay": {
         "style": {
           "title": "Overlay",
-          "description": "Choose the recording overlay: None hides it, Minimal shows a compact pill, Live shows transcription in real time as you speak (streaming-capable models only — look for the Streaming badge in the model picker). On Linux 'None' is recommended.",
+          "description": "Choose the recording overlay: None hides it, Minimal shows the animation at the edge of the screen, Live shows transcription in real time as you speak (streaming-capable models only — look for the Streaming badge in the model picker), and Focus dims the screen and shows the animation large in the center. On Linux 'None' is recommended.",
           "options": {
             "none": "None",
             "minimal": "Minimal",
-            "live": "Live"
+            "live": "Live",
+            "focus": "Focus"
           }
         },
         "position": {
