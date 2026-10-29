@@ -514,8 +514,7 @@
           "description": "Animace zobrazená, když držíte zkratku pro nahrávání.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

@@ -1178,7 +1178,7 @@ export type ModelUnloadTimeout = "never" | "immediately" | "min_2" | "min_5" | "
 /**
  * The animated shape the overlay shows while recording (in place of the pill).
  */
-export type OverlayIndicator = "halo" | "aurora" | "nebula"
+export type OverlayIndicator = "halo" | "aurora"
 export type OverlayPosition = "top" | "bottom"
 /**
  * Which recording overlay to display. `Minimal` and `Live` share one base

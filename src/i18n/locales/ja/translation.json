@@ -514,8 +514,7 @@
           "description": "録音のためにショートカットを押している間に表示されるアニメーション。",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

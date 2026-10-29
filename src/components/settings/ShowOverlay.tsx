@@ -45,12 +45,10 @@ export const ShowOverlay: React.FC<ShowOverlayProps> = React.memo(
       },
     ];
 
-    const indicatorOptions = (["halo", "aurora", "nebula"] as const).map(
-      (value) => ({
-        value,
-        label: t(`settings.advanced.overlay.indicator.options.${value}`),
-      }),
-    );
+    const indicatorOptions = (["halo", "aurora"] as const).map((value) => ({
+      value,
+      label: t(`settings.advanced.overlay.indicator.options.${value}`),
+    }));
     const selectedIndicator: OverlayIndicator =
       getSetting("overlay_indicator") || "halo";
 

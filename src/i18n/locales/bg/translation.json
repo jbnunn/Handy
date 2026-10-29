@@ -514,8 +514,7 @@
           "description": "Анимацията, която се показва, докато държите прекия път за запис.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

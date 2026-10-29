@@ -514,8 +514,7 @@
           "description": "האנימציה שמוצגת בזמן שאתם מחזיקים את קיצור הדרך להקלטה.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

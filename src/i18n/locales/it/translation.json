@@ -514,8 +514,7 @@
           "description": "L'animazione mostrata mentre tieni premuta la scorciatoia per registrare.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

@@ -514,8 +514,7 @@
           "description": "रेकर्ड गर्न सर्टकट थिचिराख्दा देखिने एनिमेसन।",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

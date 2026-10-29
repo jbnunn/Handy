@@ -514,8 +514,7 @@
           "description": "按住快捷键录音时显示的动画。",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

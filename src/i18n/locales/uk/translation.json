@@ -514,8 +514,7 @@
           "description": "Анімація, що показується, поки ви утримуєте комбінацію клавіш для запису.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

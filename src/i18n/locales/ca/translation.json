@@ -514,8 +514,7 @@
           "description": "L'animació que es mostra mentre mantens premuda la drecera per gravar.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

@@ -514,8 +514,7 @@
           "description": "Hiệu ứng hiển thị khi bạn giữ phím tắt để ghi âm.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

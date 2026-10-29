@@ -514,8 +514,7 @@
           "description": "L'animation affichée pendant que vous maintenez le raccourci pour enregistrer.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

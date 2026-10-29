@@ -80,36 +80,6 @@ void main(){
   gl_FragColor = light(col * env * (0.95 + 0.6 * lvl) * show);
 }`;
 
-// Four soft clouds (cyan, magenta, amber, violet) orbiting a white core. The
-// voice pulls them inward and brightens the core; while thinking they hold still
-// and breathe.
-const NEBULA = `${COMMON}
-vec3 lobeColor(int k){
-  if (k == 0) return hsl(0.52, 0.95, 0.55);
-  if (k == 1) return hsl(0.90, 0.90, 0.60);
-  if (k == 2) return hsl(0.11, 0.95, 0.58);
-  return hsl(0.74, 0.85, 0.62);
-}
-void main(){
-  vec2 q = (gl_FragCoord.xy - 0.5 * res) / (0.5 * min(res.x, res.y));
-  float open = 1.0 - pow(1.0 - show, 3.0);
-  vec2 p = q * 1.15 / (0.25 + 0.75 * open);
-  p += 0.14 * (vec2(noise(p * 2.0 + t * 0.35), noise(p * 2.0 + 7.0 - t * 0.3)) - 0.5);
-  vec3 col = vec3(0.0);
-  for (int k = 0; k < 4; k++) {
-    float i = float(k);
-    float ang = i * 1.5708 + t * (0.55 + 0.1 * i);
-    float rad = (0.34 + 0.06 * sin(t * 0.8 + i * 1.3)) * (1.0 - 0.4 * lvl);
-    vec2 c = rad * vec2(cos(ang), sin(ang));
-    float s = 0.3 + 0.04 * sin(t * 1.1 + i) + 0.05 * lvl;
-    col += lobeColor(k) * exp(-dot(p - c, p - c) / (s * s));
-  }
-  float core = exp(-dot(p, p) / (0.02 + 0.04 * lvl)) * (0.45 + 0.6 * lvl);
-  col = col * (0.95 + 0.4 * lvl) + core;
-  col *= 1.0 - think * (0.35 - 0.35 * pulse);
-  gl_FragColor = light(col * show * smoothstep(1.0, 0.7, length(q)));
-}`;
-
 interface BlobSpec {
   frag: string;
   /** Visible size in CSS px; must fit the overlay window (overlay.rs). */
@@ -122,7 +92,6 @@ interface BlobSpec {
 const BLOBS: Record<OverlayIndicator, BlobSpec> = {
   halo: { frag: HALO, width: 100, height: 100, soft: false },
   aurora: { frag: AURORA, width: 240, height: 90, soft: true },
-  nebula: { frag: NEBULA, width: 100, height: 100, soft: false },
 };
 
 type Renderer = (

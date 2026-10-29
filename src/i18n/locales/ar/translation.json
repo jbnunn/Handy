@@ -514,8 +514,7 @@
           "description": "الرسوم المتحركة التي تظهر أثناء الضغط على الاختصار للتسجيل.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

@@ -514,8 +514,7 @@
           "description": "Animacja wyświetlana, gdy przytrzymujesz skrót, aby nagrywać.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

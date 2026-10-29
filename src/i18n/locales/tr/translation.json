@@ -514,8 +514,7 @@
           "description": "Kayıt için kısayolu basılı tutarken gösterilen animasyon.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },

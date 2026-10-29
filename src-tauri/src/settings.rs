@@ -148,10 +148,11 @@ pub enum OverlayStyle {
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum OverlayIndicator {
+    // `nebula` was retired; the alias keeps stores that picked it loading.
     #[default]
+    #[serde(alias = "nebula")]
     Halo,
     Aurora,
-    Nebula,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type, Default)]
@@ -1682,6 +1683,12 @@ mod tests {
             settings.settings_schema_version,
             CURRENT_SETTINGS_SCHEMA_VERSION
         );
+    }
+
+    #[test]
+    fn retired_nebula_indicator_loads_as_halo() {
+        let indicator: OverlayIndicator = serde_json::from_str("\"nebula\"").unwrap();
+        assert_eq!(indicator, OverlayIndicator::Halo);
     }
 
     #[cfg(not(target_os = "linux"))]

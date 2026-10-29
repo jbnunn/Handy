@@ -514,8 +514,7 @@
           "description": "A animação mostrada enquanto você mantém o atalho pressionado para gravar.",
           "options": {
             "halo": "Halo",
-            "aurora": "Aurora",
-            "nebula": "Nebula"
+            "aurora": "Aurora"
           }
         }
       },
