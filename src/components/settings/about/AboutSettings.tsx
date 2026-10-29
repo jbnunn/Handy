@@ -71,7 +71,7 @@ export const AboutSettings: React.FC = () => {
           <Button
             variant="secondary"
             size="md"
-            onClick={() => openUrl("https://github.com/cjpais/Handy")}
+            onClick={() => openUrl("https://github.com/jbnunn/Handy")}
           >
             {t("settings.about.sourceCode.button")}
           </Button>
@@ -82,6 +82,26 @@ export const AboutSettings: React.FC = () => {
       </SettingsGroup>
 
       <SettingsGroup title={t("settings.about.acknowledgments.title")}>
+        {/* Sine is a fork of Handy (MIT); keep this credit and link. */}
+        <SettingContainer
+          title={t("settings.about.acknowledgments.handy.title")}
+          description={t("settings.about.acknowledgments.handy.description")}
+          grouped={true}
+          layout="stacked"
+        >
+          <div className="flex flex-col items-start gap-2">
+            <div className="text-sm text-ink-3">
+              {t("settings.about.acknowledgments.handy.description")}
+            </div>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => openUrl("https://github.com/cjpais/Handy")}
+            >
+              {t("settings.about.acknowledgments.handy.button")}
+            </Button>
+          </div>
+        </SettingContainer>
         <SettingContainer
           title={t("settings.about.acknowledgments.ggml.title")}
           description={t("settings.about.acknowledgments.ggml.description")}
