@@ -1,44 +1,37 @@
+import SineMark from "./SineMark";
+
 // The product name is a brand, not translatable copy.
 const WORDMARK = "Sine";
 
-/** The "Sine" wordmark: sand fill outlined in ink, like the old Handy wordmark. */
+/**
+ * The "Sine" wordmark: plain medium-weight type in the text color, with the
+ * Aurora-colored ribbons beside it unless `withMark` is false (e.g. next to
+ * the onboarding mascot, which already is the mark).
+ */
 const SineTextLogo = ({
-  width,
-  height,
-  className,
+  width = 120,
+  withMark = true,
+  className = "",
 }: {
   width?: number;
-  height?: number;
+  withMark?: boolean;
   className?: string;
 }) => (
-  <svg
-    width={width}
-    height={height}
-    className={className}
-    viewBox="0 0 150 72"
-    xmlns="http://www.w3.org/2000/svg"
+  <span
     role="img"
     aria-label={WORDMARK}
+    className={`inline-flex items-center justify-center text-text ${className}`}
+    style={{ width, gap: width * 0.06 }}
   >
-    <text
-      x="75"
-      y="56"
-      textAnchor="middle"
-      fontSize="64"
-      fontWeight="800"
-      letterSpacing="-1.5"
-      paintOrder="stroke"
-      strokeWidth="4"
-      strokeLinejoin="round"
-      style={{
-        fontFamily: '"Figtree Variable", ui-rounded, system-ui, sans-serif',
-        fill: "var(--color-wordmark)",
-        stroke: "var(--color-wordmark-stroke)",
-      }}
+    {withMark && <SineMark size={width * 0.3} aurora />}
+    <span
+      aria-hidden="true"
+      className="font-medium leading-none"
+      style={{ fontSize: width * 0.25, letterSpacing: "-0.01em" }}
     >
       {WORDMARK}
-    </text>
-  </svg>
+    </span>
+  </span>
 );
 
 export default SineTextLogo;
