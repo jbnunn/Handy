@@ -1,7 +1,8 @@
 /**
- * Geometry for Sine's mark: a podcast mic inside a wavy halo, on a 64×64 grid.
- * The single source for the in-app icons (SineMark, TrayIcon) and the
- * generated tray/app PNGs (scripts/generate-brand.ts), so they never drift.
+ * Geometry for Sine's mark: three tapered sine ribbons in their own lanes,
+ * drawn like the Aurora recording animation, on a 64×64 grid. The single
+ * source for the in-app icons (SineMark, TrayIcon) and the generated tray/app
+ * PNGs (scripts/generate-brand.ts), so they never drift.
  */
 
 export const MARK_SIZE = 64;
@@ -28,35 +29,65 @@ function wavyRing(R: number, wobbles: Wobble[], steps = 180): string {
   return `${pts.join("")}Z`;
 }
 
-/** Open sine stroke across the middle, used as the "transcribing" glyph. */
-function sineStroke(x0: number, x1: number, amp: number, steps = 60): string {
-  const pts: string[] = [];
-  for (let i = 0; i <= steps; i++) {
-    const t = i / steps;
-    const x = x0 + (x1 - x0) * t;
-    const y = 32 - amp * Math.sin(t * Math.PI * 2);
-    pts.push(`${i === 0 ? "M" : "L"}${x.toFixed(2)} ${y.toFixed(2)}`);
-  }
-  return pts.join("");
+interface RibbonSpec {
+  /** Lane center. */
+  y: number;
+  amp: number;
+  phase: number;
+  /** Half thickness at the middle; the ends taper to a quarter of it. */
+  halfWidth: number;
+  /** Relative strength: outer ribbons are fainter, like Aurora's. */
+  opacity: number;
 }
 
-/**
- * Two braided rings: a solid one and a fainter, phase-shifted echo. The echo
- * turns to fuzz at menu bar size, so the tray icons leave it out.
- */
-export const HALO = {
-  main: wavyRing(26, [
-    [3, 1.1, 0.4],
-    [5, 0.8, 1.9],
-  ]),
-  echo: wavyRing(26, [
-    [3, 1.1, 2.2],
-    [5, 0.8, 4.3],
-  ]),
-  mainWidth: 3.2,
-  echoWidth: 1.8,
-  echoOpacity: 0.55,
-};
+const X0 = 9;
+const X1 = 55;
+const PERIODS = 1;
+
+/** A sine ribbon as a filled outline, thickest in the middle. */
+function ribbon({ y, amp, phase, halfWidth }: RibbonSpec, steps = 64): string {
+  const k = (PERIODS * Math.PI * 2) / (X1 - X0);
+  const top: string[] = [];
+  const bottom: string[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const x = X0 + (X1 - X0) * t;
+    const cy = y - amp * Math.sin(k * (x - X0) + phase);
+    // Offset along the normal so steep parts keep their thickness.
+    const slope = -amp * k * Math.cos(k * (x - X0) + phase);
+    const len = Math.hypot(1, slope);
+    const w = halfWidth * (0.25 + 0.75 * Math.pow(Math.sin(Math.PI * t), 0.7));
+    const nx = (-slope / len) * w;
+    const ny = (1 / len) * w;
+    top.push(`${(x + nx).toFixed(2)} ${(cy - ny).toFixed(2)}`);
+    bottom.push(`${(x - nx).toFixed(2)} ${(cy + ny).toFixed(2)}`);
+  }
+  return `M${top.join("L")}L${bottom.reverse().join("L")}Z`;
+}
+
+const RIBBON_SPECS: RibbonSpec[] = [
+  { y: 20, amp: 4.2, phase: -0.35, halfWidth: 2.5, opacity: 0.75 },
+  { y: 32, amp: 4.8, phase: 0, halfWidth: 3.3, opacity: 1 },
+  { y: 44, amp: 4.2, phase: 0.35, halfWidth: 2.5, opacity: 0.75 },
+];
+
+/** The three ribbons, top to bottom, with their Aurora hues (degrees). */
+export const RIBBONS = RIBBON_SPECS.map((spec, i) => ({
+  path: ribbon(spec),
+  opacity: spec.opacity,
+  // Aurora's shader: hue = 0.45 + i * 0.19, drifting ±0.22 across x.
+  hue: (0.45 + i * 0.19) * 360,
+  hueSpread: 0.22 * 360,
+}));
+
+/** One calm, nearly flat ribbon: the "transcribing" glyph. */
+export const CALM = ribbon({
+  y: 32,
+  amp: 2,
+  phase: 0,
+  halfWidth: 3.4,
+  opacity: 1,
+});
 
 /** Filled wavy disc behind the knocked-out glyph in the busy states. */
 export const DISC = wavyRing(28.5, [
@@ -64,21 +95,8 @@ export const DISC = wavyRing(28.5, [
   [5, 0.6, 1.9],
 ]);
 
-export const MIC = {
-  capsule: { x: 25, y: 12, width: 14, height: 24, radius: 7 },
-  /** Grille slots knocked out of the capsule. */
-  grille: [19, 23.5, 28].map((y) => `M28.5 ${y}H35.5`),
-  grilleWidth: 1.7,
-  yoke: "M19.5 25V27A12.5 12.5 0 0 0 44.5 27V25",
-  stem: "M32 39.5V47",
-  base: "M25.5 48.5H38.5",
-  strokeWidth: 3,
-};
-
-/** The mic shrunk to sit inside the disc. */
-export const MIC_IN_DISC = "translate(32 32) scale(0.82) translate(-32 -32)";
-
-export const SINE = { path: sineStroke(14, 50, 7.5), width: 4.4 };
+/** The ribbons shrunk to sit inside the disc. */
+const IN_DISC = "translate(32 32) scale(0.74) translate(-32 -32)";
 
 /** Warning badge, bottom right, cut out of the idle mark. */
 export const BADGE = {
@@ -92,43 +110,24 @@ export const BADGE = {
 
 export type MarkState = "idle" | "recording" | "transcribing" | "warning";
 
-/** The mic as SVG markup, in `color`, for the generator. */
-function micMarkup(color: string, grilleColor: string): string {
-  const c = MIC.capsule;
-  const s = `stroke="${color}" stroke-width="${MIC.strokeWidth}" stroke-linecap="round" fill="none"`;
-  return [
-    `<rect x="${c.x}" y="${c.y}" width="${c.width}" height="${c.height}" rx="${c.radius}" fill="${color}"/>`,
-    ...MIC.grille.map(
-      (d) =>
-        `<path d="${d}" stroke="${grilleColor}" stroke-width="${MIC.grilleWidth}" stroke-linecap="round"/>`,
-    ),
-    `<path d="${MIC.yoke}" ${s}/>`,
-    `<path d="${MIC.stem}" ${s}/>`,
-    `<path d="${MIC.base}" ${s}/>`,
-  ].join("");
-}
-
-/** Just the mic (grille knocked out), for the app icon's colored halo. */
-export function micSvg(color: string): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><mask id="m"><rect width="64" height="64" fill="white"/>${MIC.grille
-    .map(
-      (d) =>
-        `<path d="${d}" stroke="black" stroke-width="${MIC.grilleWidth}" stroke-linecap="round"/>`,
-    )
-    .join("")}</mask><g mask="url(#m)">${micMarkup(color, color)}</g></svg>`;
-}
-
 export interface MarkSvgOptions {
-  /** Draw the faint second halo ring (skip it at menu bar size). */
-  echo?: boolean;
-  /** Prefix for mask ids, so several inline marks can share a page. */
+  /** Prefix for mask/gradient ids, so several inline marks can share a page. */
   id?: string;
   /** Rendered width/height; defaults to the 64px grid. */
   size?: string | number;
-  /** Paint for the halo instead of `color`, e.g. `url(#gradient)`. */
-  haloPaint?: string;
-  /** Extra `<defs>` content, e.g. the gradient `haloPaint` points at. */
-  defs?: string;
+  /** Paint each idle ribbon with its Aurora gradient instead of `color`. */
+  aurora?: boolean;
+}
+
+/** Horizontal Aurora gradients, one per ribbon, for `aurora` marks. */
+function auroraDefs(id: string): string {
+  return RIBBONS.map(
+    (r, i) =>
+      `<linearGradient id="${id}r${i}" x1="${X0}" x2="${X1}" y1="0" y2="0" gradientUnits="userSpaceOnUse">` +
+      `<stop offset="0" stop-color="hsl(${(r.hue - r.hueSpread).toFixed(0)} 90% 62%)"/>` +
+      `<stop offset="1" stop-color="hsl(${(r.hue + r.hueSpread).toFixed(0)} 90% 62%)"/>` +
+      `</linearGradient>`,
+  ).join("");
 }
 
 /**
@@ -138,39 +137,32 @@ export interface MarkSvgOptions {
 export function markSvg(
   state: MarkState,
   color: string,
-  {
-    echo = false,
-    id = "",
-    size = MARK_SIZE,
-    haloPaint = color,
-    defs = "",
-  }: MarkSvgOptions = {},
+  { id = "", size = MARK_SIZE, aurora = false }: MarkSvgOptions = {},
 ): string {
   const m = `${id}m`;
   const bm = `${id}b`;
-  const knockGrille = MIC.grille
-    .map(
-      (d) =>
-        `<path d="${d}" stroke="black" stroke-width="${MIC.grilleWidth}" stroke-linecap="round"/>`,
-    )
-    .join("");
-  const halo =
-    `<path d="${HALO.main}" stroke="${haloPaint}" stroke-width="${HALO.mainWidth}" fill="none"/>` +
-    (echo
-      ? `<path d="${HALO.echo}" stroke="${haloPaint}" stroke-width="${HALO.echoWidth}" stroke-opacity="${HALO.echoOpacity}" fill="none"/>`
-      : "");
+  const ribbons = (paint: (i: number) => string, withOpacity = true) =>
+    RIBBONS.map(
+      (r, i) =>
+        `<path d="${r.path}" fill="${paint(i)}"${withOpacity && r.opacity < 1 ? ` fill-opacity="${r.opacity}"` : ""}/>`,
+    ).join("");
+  const idlePaint = (i: number) => (aurora ? `url(#${id}r${i})` : color);
+  let defs = aurora ? auroraDefs(id) : "";
   let body: string;
   if (state === "idle") {
-    body = `<mask id="${m}"><rect width="64" height="64" fill="white"/>${knockGrille}</mask><g mask="url(#${m})">${halo}${micMarkup(color, color)}</g>`;
+    body = ribbons(idlePaint);
   } else if (state === "warning") {
     const b = BADGE;
-    body = `<mask id="${m}"><rect width="64" height="64" fill="white"/>${knockGrille}<circle cx="${b.cx}" cy="${b.cy}" r="${b.gap}" fill="black"/></mask><g mask="url(#${m})">${halo}${micMarkup(color, color)}</g><mask id="${bm}"><circle cx="${b.cx}" cy="${b.cy}" r="${b.r}" fill="white"/><rect x="${b.bar.x}" y="${b.bar.y}" width="${b.bar.width}" height="${b.bar.height}" rx="${b.bar.radius}" fill="black"/><circle cx="${b.dot.cx}" cy="${b.dot.cy}" r="${b.dot.r}" fill="black"/></mask><circle cx="${b.cx}" cy="${b.cy}" r="${b.r}" fill="${color}" mask="url(#${bm})"/>`;
+    defs += `<mask id="${m}"><rect width="64" height="64" fill="white"/><circle cx="${b.cx}" cy="${b.cy}" r="${b.gap}" fill="black"/></mask><mask id="${bm}"><circle cx="${b.cx}" cy="${b.cy}" r="${b.r}" fill="white"/><rect x="${b.bar.x}" y="${b.bar.y}" width="${b.bar.width}" height="${b.bar.height}" rx="${b.bar.radius}" fill="black"/><circle cx="${b.dot.cx}" cy="${b.dot.cy}" r="${b.dot.r}" fill="black"/></mask>`;
+    body = `<g mask="url(#${m})">${ribbons(idlePaint)}</g><circle cx="${b.cx}" cy="${b.cy}" r="${b.r}" fill="${color}" mask="url(#${bm})"/>`;
   } else {
+    // Busy states: a soft blob with the glyph cut out of it.
     const glyph =
       state === "recording"
-        ? `<g transform="${MIC_IN_DISC}">${micMarkup("black", "white")}</g>`
-        : `<path d="${SINE.path}" stroke="black" stroke-width="${SINE.width}" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
-    body = `<mask id="${m}"><rect width="64" height="64" fill="white"/>${glyph}</mask><path d="${DISC}" fill="${color}" mask="url(#${m})"/>`;
+        ? `<g transform="${IN_DISC}">${ribbons(() => "black", false)}</g>`
+        : `<path d="${CALM}" fill="black" transform="${IN_DISC}"/>`;
+    defs += `<mask id="${m}"><rect width="64" height="64" fill="white"/>${glyph}</mask>`;
+    body = `<path d="${DISC}" fill="${color}" mask="url(#${m})"/>`;
   }
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 64 64">${defs ? `<defs>${defs}</defs>` : ""}${body}</svg>`;
 }

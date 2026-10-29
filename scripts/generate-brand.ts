@@ -10,10 +10,9 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import {
-  HALO,
   MARK_SIZE,
+  RIBBONS,
   markSvg,
-  micSvg,
 } from "../src/components/icons/markGeometry";
 import type { MarkState } from "../src/components/icons/markGeometry";
 
@@ -95,10 +94,10 @@ for (const t of tray) {
     );
 }
 
-// App icon: ink squircle, white mic, iridescent glowing halo. Proportions
-// follow the previous icon (artwork inset ~7.4% on each side).
+// App icon: dark squircle with the three ribbons glowing in Aurora's colors.
+// Proportions follow the previous icon (artwork inset ~7.4% on each side).
 const appIcon = await page.evaluate(
-  async ({ mic, halo, markSize }) => {
+  async ({ ribbons, markSize }) => {
     const S = 1024;
     const c = document.createElement("canvas");
     c.width = c.height = S;
@@ -114,35 +113,23 @@ const appIcon = await page.evaluate(
     ctx.fillStyle = bg;
     ctx.fill();
 
-    const k = 10.4; // 64-unit mark -> ~666px
+    const k = 11.5; // 64-unit mark -> ~736px
     const off = (S - markSize * k) / 2;
-    ctx.save();
     ctx.translate(off, off);
     ctx.scale(k, k);
-    const conic = ctx.createConicGradient(-Math.PI / 2, 32, 32);
-    const hues = [190, 260, 320, 30, 60, 150, 190];
-    hues.forEach((h, i) =>
-      conic.addColorStop(i / (hues.length - 1), `hsl(${h} 90% 66%)`),
-    );
-    ctx.strokeStyle = conic;
-    ctx.lineJoin = "round";
-    ctx.shadowColor = "rgba(160, 200, 255, 0.55)";
-    ctx.shadowBlur = 40;
-    ctx.globalAlpha = halo.echoOpacity;
-    ctx.lineWidth = halo.echoWidth;
-    ctx.stroke(new Path2D(halo.echo));
-    ctx.globalAlpha = 1;
-    ctx.lineWidth = halo.mainWidth;
-    ctx.stroke(new Path2D(halo.main));
-    ctx.restore();
-
-    const img = new Image();
-    img.src = "data:image/svg+xml;base64," + btoa(mic);
-    await img.decode();
-    ctx.drawImage(img, off, off, markSize * k, markSize * k);
+    for (const r of ribbons) {
+      const g = ctx.createLinearGradient(9, 0, 55, 0);
+      g.addColorStop(0, `hsl(${r.hue - r.hueSpread} 90% 64%)`);
+      g.addColorStop(1, `hsl(${r.hue + r.hueSpread} 90% 64%)`);
+      ctx.fillStyle = g;
+      ctx.globalAlpha = r.opacity;
+      ctx.shadowColor = `hsl(${r.hue} 90% 60% / 0.7)`;
+      ctx.shadowBlur = 36;
+      ctx.fill(new Path2D(r.path));
+    }
     return c.toDataURL("image/png");
   },
-  { mic: micSvg("#f4f2ee"), halo: HALO, markSize: MARK_SIZE },
+  { ribbons: RIBBONS, markSize: MARK_SIZE },
 );
 write(path.join(icons, "app-icon.png"), appIcon);
 
