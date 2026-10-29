@@ -45,9 +45,10 @@ tauri_panel! {
 //
 // Compact overlay (Minimal / transcribing / processing): the 40h pill animates
 // width from 172 (--ov-rest-w) to 216 (--ov-work-w) and expands from center, so
-// the window must fit the widest state plus a little slack.
+// the window must fit the widest state plus a little slack. Height fits the
+// 100px Halo ring (Halo.tsx HALO_SIZE) that replaces the pill while recording.
 const OVERLAY_WIDTH: f64 = 256.0;
-const OVERLAY_HEIGHT: f64 = 50.0;
+const OVERLAY_HEIGHT: f64 = 100.0;
 
 // Actual is 394x118, just a little extra
 const OVERLAY_STREAM_WIDTH: f64 = 400.0;
@@ -824,7 +825,7 @@ mod tests {
                 OVERLAY_HEIGHT,
                 OverlayPosition::Bottom,
             ),
-            (3648, 2025, 384, 75)
+            (3648, 1950, 384, 150)
         );
         assert_eq!(
             windows_overlay_bounds(
@@ -836,7 +837,7 @@ mod tests {
                 OVERLAY_HEIGHT,
                 OverlayPosition::Top,
             ),
-            (3648, 6, 384, 75)
+            (3648, 6, 384, 150)
         );
     }
 

@@ -106,7 +106,7 @@ export const HALO_SUPPORTED = (() => {
 })();
 
 // Visible square in CSS px; must fit the overlay window height (overlay.rs).
-const HALO_SIZE = 50;
+const HALO_SIZE = 100;
 
 interface HaloProps {
   /** Recording: the ring opens while true and collapses when false. */
