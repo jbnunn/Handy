@@ -1,6 +1,6 @@
 use crate::input;
 use crate::settings;
-use crate::settings::{OverlayPosition, OverlayStyle};
+use crate::settings::{OverlayIndicator, OverlayPosition, OverlayStyle};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Emitter, Manager, PhysicalPosition, PhysicalSize};
@@ -49,15 +49,19 @@ tauri_panel! {
 // 100px Halo ring (Halo.tsx HALO_SIZE) that replaces the pill while recording.
 const OVERLAY_WIDTH: f64 = 256.0;
 const OVERLAY_HEIGHT: f64 = 100.0;
+// Opal is a 160px pearl (ListeningBlob.tsx), so its compact window is taller.
+const OVERLAY_OPAL_HEIGHT: f64 = 160.0;
 
 // Actual is 394x118, just a little extra
 const OVERLAY_STREAM_WIDTH: f64 = 400.0;
 const OVERLAY_STREAM_HEIGHT: f64 = 120.0;
 
-/// Overlay window size (logical) for a given UI state.
-fn overlay_dimensions(state: &str) -> (f64, f64) {
+/// Overlay window size (logical) for a given UI state and recording animation.
+fn overlay_dimensions(state: &str, indicator: OverlayIndicator) -> (f64, f64) {
     if state == "streaming" {
         (OVERLAY_STREAM_WIDTH, OVERLAY_STREAM_HEIGHT)
+    } else if indicator == OverlayIndicator::Opal {
+        (OVERLAY_WIDTH, OVERLAY_OPAL_HEIGHT)
     } else {
         (OVERLAY_WIDTH, OVERLAY_HEIGHT)
     }
@@ -510,7 +514,8 @@ fn show_overlay_state(app_handle: &AppHandle, state: &str) {
 
 fn show_overlay_state_on_main(app_handle: &AppHandle, state: &str) {
     // Size the overlay for this state (compact vs. streaming), then position it.
-    let (width, height) = overlay_dimensions(state);
+    let indicator = settings::get_settings(app_handle).overlay_indicator;
+    let (width, height) = overlay_dimensions(state, indicator);
     if let Some(overlay_window) = app_handle.get_webview_window("recording_overlay") {
         // Invalidate any delayed hide still in flight from a previous session
         // (see `hide_recording_overlay`).
@@ -658,7 +663,8 @@ fn update_overlay_position_on_main(app_handle: &AppHandle) {
             } else {
                 "recording"
             };
-            let (width, height) = overlay_dimensions(state);
+            let indicator = settings::get_settings(app_handle).overlay_indicator;
+            let (width, height) = overlay_dimensions(state, indicator);
             if let Err(error) = place_windows_overlay(app_handle, &overlay_window, width, height) {
                 log::error!("Failed to update recording overlay position: {error}");
             }

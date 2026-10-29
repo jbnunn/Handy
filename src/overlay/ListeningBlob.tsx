@@ -81,11 +81,12 @@ void main(){
 }`;
 
 // A solid, slightly lumpy pearl with thin-film color sliding across it and a
-// soft glow. The outline breathes with the voice; while thinking the film holds
+// soft glow, drawn at half opacity so it reads as glassy. The outline breathes with the voice; while thinking the film holds
 // still and the pearl gently swells and brightens.
 const OPAL = `${COMMON}
 void main(){
-  float scale = 0.5 * min(res.x, res.y);
+  // Shape units: 1.0 = 100px at the 160px canvas (canvas edge at 0.8).
+  float scale = 0.5 * min(res.x, res.y) * 1.25;
   vec2 p = (gl_FragCoord.xy - 0.5 * res) / scale;
   float r = length(p), th = atan(p.y, p.x);
   float open = 1.0 - pow(1.0 - show, 3.0);
@@ -107,11 +108,11 @@ void main(){
   col *= 1.0 - think * (0.15 - 0.2 * pulse);
   col = clamp(col, 0.0, 1.0);
   float glow = d > 0.0 ? exp(-d * 9.0) * (0.35 + 0.3 * lvl) : 0.0;
-  glow *= smoothstep(1.0, 0.8, r);
+  glow *= smoothstep(0.8, 0.64, r);
   vec3 glowCol = hsl(th / 6.2831853 + 0.15 + t * 0.05, 0.9, 0.65);
   float a = cover + glow * (1.0 - cover);
   vec3 rgb = col * cover + glowCol * glow * (1.0 - cover);
-  gl_FragColor = vec4(rgb, a) * show;
+  gl_FragColor = vec4(rgb, a) * show * 0.5;
 }`;
 
 interface BlobSpec {
@@ -126,7 +127,7 @@ interface BlobSpec {
 const BLOBS: Record<OverlayIndicator, BlobSpec> = {
   halo: { frag: HALO, width: 100, height: 100, soft: false },
   aurora: { frag: AURORA, width: 240, height: 90, soft: true },
-  opal: { frag: OPAL, width: 100, height: 100, soft: false },
+  opal: { frag: OPAL, width: 160, height: 160, soft: false },
 };
 
 type Renderer = (
