@@ -222,15 +222,19 @@ const RecordingOverlay: React.FC = () => {
     setOverflowing(false);
   }, [session]);
 
-  // Minimal-mode recording shows the animated blob instead of the pill. It stays
-  // mounted through hide and the hand-off to the working pill so it can collapse
-  // out. Keyed by indicator so a style change gets a fresh GL context.
-  const blobActive = BLOB_SUPPORTED && isVisible && state === "recording";
+  // The minimal overlay shows the animated blob instead of the pill: moving while
+  // recording, then holding still and breathing while transcribing/processing.
+  // It stays mounted through hide so it can collapse out. Keyed by indicator so
+  // a style change gets a fresh GL context.
+  const blobThinking = state === "transcribing" || state === "processing";
+  const blobActive =
+    BLOB_SUPPORTED && isVisible && (state === "recording" || blobThinking);
   const blob = BLOB_SUPPORTED && (
     <ListeningBlob
       key={indicator}
       indicator={indicator}
       active={blobActive}
+      thinking={blobThinking}
       ready={captureReady}
       levelRef={blobLevelRef}
     />
@@ -372,9 +376,10 @@ const RecordingOverlay: React.FC = () => {
     );
   }
 
-  // ---- Minimal overlay: exactly one row at a time — waveform (recording), or a
-  // spinner + label (transcribing / processing). Never both. The pill animates its
-  // width between them; the cancel button is in both rows so it stays put.
+  // ---- Minimal overlay: the blob above, or (without WebGL) the pill with
+  // exactly one row at a time — waveform (recording), or a spinner + label
+  // (transcribing / processing). Never both. The pill animates its width between
+  // them; the cancel button is in both rows so it stays put.
   const working = state === "transcribing" || state === "processing";
   const workLabel =
     state === "processing" ? t("overlay.processing") : transcribingLabel;

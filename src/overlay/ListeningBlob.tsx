@@ -1,16 +1,18 @@
 import React, { useEffect, useRef } from "react";
 import type { OverlayIndicator } from "@/bindings";
 
-// Animated shape shown while recording, in place of the pill. Each indicator is
-// one fragment shader with three inputs: time, mic level (0..1), and how far it
-// has appeared (0..1). Color is additive light, so brightness becomes alpha and
+// Animated shape shown while recording and transcribing, in place of the pill.
+// Each indicator is one fragment shader with five inputs: motion time, mic level
+// (0..1), how far it has appeared (0..1), how far it has settled into the
+// "thinking" state after the key is released (0..1), and that state's breathing
+// pulse (0..1). Motion time slows to a stop as it starts thinking. Color is additive light, so brightness becomes alpha and
 // the shape floats on the transparent overlay window with no card behind it.
 
 const VERT = `attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }`;
 
 const COMMON = `
 precision highp float;
-uniform vec2 res; uniform float t, lvl, show;
+uniform vec2 res; uniform float t, lvl, show, think, pulse;
 float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p){
   vec2 i = floor(p), f = fract(p), u = f * f * (3.0 - 2.0 * f);
@@ -25,7 +27,8 @@ vec3 hsl(float h, float s, float l){
 vec4 light(vec3 c){ c = max(c, 0.0); return vec4(min(c, 1.0), min(max(c.r, max(c.g, c.b)), 1.0)); }
 `;
 
-// Spinning spectral ring. Opens from a point, bulges and brightens with the voice.
+// Spinning spectral ring. Opens from a point, bulges and brightens with the voice;
+// while thinking it holds still and breathes, with a faint color filling it.
 const HALO = `${COMMON}
 void main(){
   vec2 p = (gl_FragCoord.xy - 0.5 * res) / (0.5 * min(res.x, res.y));
@@ -34,7 +37,8 @@ void main(){
   float open = 1.0 - pow(1.0 - show, 3.0);
   float R = 0.6 * (0.35 + 0.65 * open)
           + 0.04 * sin(3.0 * a) + 0.025 * sin(6.0 * a + t * 0.8)
-          + lvl * (0.05 + 0.07 * (0.5 + 0.5 * sin(4.0 * a + t * 3.0)));
+          + lvl * (0.05 + 0.07 * (0.5 + 0.5 * sin(4.0 * a + t * 3.0)))
+          + think * 0.025 * pulse;
   float d = abs(r - R);
   float w = 0.05 + 0.03 * lvl;
   float I = exp(-pow(d / w, 2.0)) * 1.1 + exp(-pow(d / 0.16, 2.0)) * (0.3 + 0.35 * lvl);
@@ -42,12 +46,16 @@ void main(){
   vec3 col = hsl(a / 6.2831853 + 0.08 * sin(r * 6.0), 0.92, 0.6) * I * head;
   if (r < R) col += hsl(0.62 + t * 0.05, 0.7, 0.6) * (0.08 + 0.1 * lvl) * smoothstep(0.0, R, r);
   col += exp(-pow(d / 0.016, 2.0)) * (0.4 + 0.3 * lvl);
+  col *= 1.0 - think * (0.3 - 0.3 * pulse);
+  float inside = 1.0 - smoothstep(R * 0.7, R, r);
+  col += hsl(0.62 + 0.12 * p.y - 0.06 * p.x, 0.8, 0.62) * inside * think * (0.1 + 0.2 * pulse);
   // Fade the outer glow before the canvas edge so it never shows a hard border.
   gl_FragColor = light(col * show * smoothstep(1.0, 0.8, r));
 }`;
 
 // Three luminous ribbons drifting sideways. They spread out from the center on
-// show, and the voice drives how tall the ripples get.
+// show, and the voice drives how tall the ripples get; while thinking they hold
+// still and breathe over a faint band of color.
 const AURORA = `${COMMON}
 void main(){
   vec2 p = (gl_FragCoord.xy - 0.5 * res) / (0.5 * res.x);
@@ -65,11 +73,14 @@ void main(){
     I *= 0.8 + 0.2 * noise(vec2(x * 4.0 + i * 10.0 - t * 0.5, i + t * 0.2));
     col += hsl(0.45 + i * 0.19 + x * 0.22 + t * 0.04, 0.92, 0.6) * I;
   }
+  col *= 1.0 - think * (0.35 - 0.35 * pulse);
+  col += hsl(0.55 + x * 0.2, 0.8, 0.6) * exp(-pow(y / 0.3, 2.0)) * think * (0.08 + 0.18 * pulse);
   gl_FragColor = light(col * env * (0.95 + 0.6 * lvl) * show);
 }`;
 
 // Four soft clouds (cyan, magenta, amber, violet) orbiting a white core. The
-// voice pulls them inward and brightens the core.
+// voice pulls them inward and brightens the core; while thinking they hold still
+// and breathe.
 const NEBULA = `${COMMON}
 vec3 lobeColor(int k){
   if (k == 0) return hsl(0.52, 0.95, 0.55);
@@ -93,6 +104,7 @@ void main(){
   }
   float core = exp(-dot(p, p) / (0.02 + 0.04 * lvl)) * (0.45 + 0.6 * lvl);
   col = col * (0.95 + 0.4 * lvl) + core;
+  col *= 1.0 - think * (0.35 - 0.35 * pulse);
   gl_FragColor = light(col * show * smoothstep(1.0, 0.7, length(q)));
 }`;
 
@@ -117,6 +129,8 @@ type Renderer = (
   t: number,
   lvl: number,
   show: number,
+  think: number,
+  pulse: number,
 ) => void;
 
 function createRenderer(
@@ -158,7 +172,9 @@ function createRenderer(
   const uT = gl.getUniformLocation(prog, "t");
   const uLvl = gl.getUniformLocation(prog, "lvl");
   const uShow = gl.getUniformLocation(prog, "show");
-  return (w, h, t, lvl, show) => {
+  const uThink = gl.getUniformLocation(prog, "think");
+  const uPulse = gl.getUniformLocation(prog, "pulse");
+  return (w, h, t, lvl, show, think, pulse) => {
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w;
       canvas.height = h;
@@ -170,6 +186,8 @@ function createRenderer(
     gl.uniform1f(uT, t);
     gl.uniform1f(uLvl, lvl);
     gl.uniform1f(uShow, show);
+    gl.uniform1f(uThink, think);
+    gl.uniform1f(uPulse, pulse);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   };
 }
@@ -185,8 +203,10 @@ export const BLOB_SUPPORTED = (() => {
 
 interface ListeningBlobProps {
   indicator: OverlayIndicator;
-  /** Recording: the shape opens while true and collapses when false. */
+  /** Recording or transcribing: the shape opens while true, collapses when false. */
   active: boolean;
+  /** Key released, transcribing: motion stops and the shape breathes. */
+  thinking: boolean;
   /** False while the mic is still arming: the shape waits half-open and dim. */
   ready: boolean;
   /** Latest raw mic level, 0..1. Read every frame; smoothed here. */
@@ -196,15 +216,18 @@ interface ListeningBlobProps {
 const ListeningBlob: React.FC<ListeningBlobProps> = ({
   indicator,
   active,
+  thinking,
   ready,
   levelRef,
 }) => {
   const spec = BLOBS[indicator] ?? BLOBS.halo;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const targetRef = useRef(0);
+  const thinkingRef = useRef(false);
   const loopRef = useRef<(() => void) | null>(null);
 
-  targetRef.current = active ? (ready ? 1 : 0.55) : 0;
+  targetRef.current = active ? (ready || thinking ? 1 : 0.55) : 0;
+  thinkingRef.current = thinking;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -219,15 +242,25 @@ const ListeningBlob: React.FC<ListeningBlobProps> = ({
     let show = 0;
     let lvl = 0;
     let soft = 0;
+    let think = 0;
+    let breath = 0;
 
     const frame = (now: number) => {
       const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
       last = now;
-      clock += dt * (reduce.matches ? 0.3 : 1);
+      const pace = reduce.matches ? 0.3 : 1;
       const target = targetRef.current;
+      // Ease into thinking over ~0.5s; motion time slows to a stop with it.
+      const thinkGoal = thinkingRef.current ? 1 : 0;
+      think += (thinkGoal - think) * (1 - Math.exp(-dt * 5));
+      clock += dt * pace * (1 - think);
+      // Breathing phase only advances while thinking, so each pulse starts dim.
+      breath = thinkGoal ? breath + dt * pace : 0;
+      const pulse = 0.5 - 0.5 * Math.cos(breath * Math.PI * 1.5);
       // Open fast, collapse faster: the window hides ~300ms after release.
       show += (target - show) * (1 - Math.exp(-dt * (target > show ? 9 : 12)));
-      const goal = target > 0 ? Math.min(1, levelRef.current * 1.4) : 0;
+      const goal =
+        target > 0 && !thinkGoal ? Math.min(1, levelRef.current * 1.4) : 0;
       // Fast attack, slower release, so syllables punch and pauses settle.
       lvl += (goal - lvl) * (1 - Math.exp(-dt * (goal > lvl ? 18 : 7)));
       soft += (lvl - soft) * (1 - Math.exp(-dt * 4));
@@ -238,6 +271,8 @@ const ListeningBlob: React.FC<ListeningBlobProps> = ({
         clock,
         spec.soft ? soft : lvl,
         show,
+        think,
+        pulse,
       );
       if (target === 0 && show < 0.002) {
         running = false; // idle: stop drawing until the next show
