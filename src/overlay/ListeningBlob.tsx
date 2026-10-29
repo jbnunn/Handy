@@ -66,11 +66,13 @@ void main(){
   vec3 col = vec3(0.0);
   for (int k = 0; k < 3; k++) {
     float i = float(k);
-    float yc = amp * (0.17 * sin(x * 2.6 + i * 2.1 + t * (0.8 + 0.25 * i))
-                    + 0.05 * sin(x * 5.1 + i - t * 1.1));
+    // Each ribbon rides its own lane so they cross less and read as separate.
+    float yc = (i - 1.0) * 0.13
+             + amp * (0.17 * sin(x * 2.6 + i * 2.1 + t * (1.05 + 0.3 * i))
+                    + 0.05 * sin(x * 5.1 + i - t * 1.4));
     float w = 0.085 + 0.035 * sin(x * 1.6 + i * 1.7 + t * 0.5) + 0.04 * lvl;
     float I = exp(-pow((y - yc) / w, 2.0)) + 0.25 * exp(-pow((y - yc) / (w * 3.5), 2.0));
-    I *= 0.8 + 0.2 * noise(vec2(x * 4.0 + i * 10.0 - t * 0.5, i + t * 0.2));
+    I *= 0.8 + 0.2 * noise(vec2(x * 4.0 + i * 10.0 - t * 0.65, i + t * 0.25));
     col += hsl(0.45 + i * 0.19 + x * 0.22 + t * 0.04, 0.92, 0.6) * I;
   }
   col *= 1.0 - think * (0.35 - 0.35 * pulse);
