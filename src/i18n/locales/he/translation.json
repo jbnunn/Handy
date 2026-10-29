@@ -508,6 +508,15 @@
             "bottom": "למטה",
             "top": "למעלה"
           }
+        },
+        "indicator": {
+          "title": "אנימציית הקלטה",
+          "description": "האנימציה שמוצגת בזמן שאתם מחזיקים את קיצור הדרך להקלטה.",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

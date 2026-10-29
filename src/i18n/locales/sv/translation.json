@@ -508,6 +508,15 @@
             "bottom": "Nederst",
             "top": "Överst"
           }
+        },
+        "indicator": {
+          "title": "Inspelningsanimation",
+          "description": "Animationen som visas medan du håller ned genvägen för att spela in.",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

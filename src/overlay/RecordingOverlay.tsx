@@ -2,9 +2,10 @@ import { listen } from "@tauri-apps/api/event";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "./RecordingOverlay.css";
-import Halo, { HALO_SUPPORTED } from "./Halo";
+import ListeningBlob, { BLOB_SUPPORTED } from "./ListeningBlob";
 import { commands, events } from "@/bindings";
 import type {
+  OverlayIndicator,
   StreamPhase,
   StreamPhaseEvent,
   StreamTextEvent,
@@ -64,8 +65,10 @@ const RecordingOverlay: React.FC = () => {
   const [overflowing, setOverflowing] = useState(false);
 
   const smoothedLevelsRef = useRef<number[]>(Array(16).fill(0));
-  // Raw overall mic level (0..1) for the Halo, which smooths it per frame.
-  const haloLevelRef = useRef(0);
+  // Which recording animation to show (read from settings on each show).
+  const [indicator, setIndicator] = useState<OverlayIndicator>("halo");
+  // Raw overall mic level (0..1) for the blob, which smooths it per frame.
+  const blobLevelRef = useRef(0);
   // Live-text scroll-back: the text region "sticks" to the newest line while the
   // user is at the bottom; if they scroll up to read history, auto-follow pauses
   // until they scroll back down.
@@ -84,7 +87,7 @@ const RecordingOverlay: React.FC = () => {
           setCaptureReady(false);
           smoothedLevelsRef.current = Array(16).fill(0);
           setLevels(Array(WAVE_BARS).fill(0));
-          haloLevelRef.current = 0;
+          blobLevelRef.current = 0;
           setStreamText({ committed: "", tentative: "" });
         }
 
@@ -97,6 +100,7 @@ const RecordingOverlay: React.FC = () => {
             setPosition(
               settings.data.overlay_position === "top" ? "top" : "bottom",
             );
+            setIndicator(settings.data.overlay_indicator ?? "halo");
           }
         } catch {
           // Keep the previous/default placement if settings can't be read.
@@ -131,7 +135,7 @@ const RecordingOverlay: React.FC = () => {
           return prev * 0.7 + target * 0.3;
         });
         smoothedLevelsRef.current = smoothed;
-        haloLevelRef.current =
+        blobLevelRef.current =
           newLevels.slice(0, WAVE_BARS).reduce((sum, v) => sum + (v || 0), 0) /
           WAVE_BARS;
         setLevels(smoothed.slice(0, WAVE_BARS));
@@ -218,15 +222,22 @@ const RecordingOverlay: React.FC = () => {
     setOverflowing(false);
   }, [session]);
 
-  // Minimal-mode recording shows the Halo instead of the pill. It stays mounted
-  // through hide and the hand-off to the working pill so it can collapse out.
-  const haloActive = HALO_SUPPORTED && isVisible && state === "recording";
-  const halo = HALO_SUPPORTED && (
-    <Halo active={haloActive} ready={captureReady} levelRef={haloLevelRef} />
+  // Minimal-mode recording shows the animated blob instead of the pill. It stays
+  // mounted through hide and the hand-off to the working pill so it can collapse
+  // out. Keyed by indicator so a style change gets a fresh GL context.
+  const blobActive = BLOB_SUPPORTED && isVisible && state === "recording";
+  const blob = BLOB_SUPPORTED && (
+    <ListeningBlob
+      key={indicator}
+      indicator={indicator}
+      active={blobActive}
+      ready={captureReady}
+      levelRef={blobLevelRef}
+    />
   );
 
   if (!isVisible) {
-    return halo ? <div className={`ov-stage ${position}`}>{halo}</div> : null;
+    return blob ? <div className={`ov-stage ${position}`}>{blob}</div> : null;
   }
 
   // Re-pin when the user is within ~a line of the bottom; unpin otherwise.
@@ -373,8 +384,8 @@ const RecordingOverlay: React.FC = () => {
       dir={direction}
       className={`ov-stage ${position} ov-fade ${isVisible ? "show" : ""}`}
     >
-      {halo}
-      {!haloActive && (
+      {blob}
+      {!blobActive && (
         <div
           className={`scard compact ${working && isVisible ? "cworking" : ""}`}
         >

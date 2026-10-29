@@ -508,6 +508,15 @@
             "bottom": "底部",
             "top": "頂部"
           }
+        },
+        "indicator": {
+          "title": "錄音動畫",
+          "description": "按住快捷鍵錄音時顯示的動畫。",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

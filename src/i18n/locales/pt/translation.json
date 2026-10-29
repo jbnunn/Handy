@@ -508,6 +508,15 @@
             "bottom": "Inferior",
             "top": "Superior"
           }
+        },
+        "indicator": {
+          "title": "Animação de gravação",
+          "description": "A animação mostrada enquanto você mantém o atalho pressionado para gravar.",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

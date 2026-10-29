@@ -144,6 +144,16 @@ pub enum OverlayStyle {
     Live,
 }
 
+/// The animated shape the overlay shows while recording (in place of the pill).
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum OverlayIndicator {
+    #[default]
+    Halo,
+    Aurora,
+    Nebula,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Type, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ModelUnloadTimeout {
@@ -542,6 +552,8 @@ pub struct AppSettings {
     /// `overlay_position` (position `none` → style `None`).
     #[serde(default = "default_overlay_style")]
     pub overlay_style: OverlayStyle,
+    #[serde(default)]
+    pub overlay_indicator: OverlayIndicator,
 }
 
 fn default_model() -> String {
@@ -1033,6 +1045,7 @@ pub fn get_default_settings() -> AppSettings {
         vad_backend: VadBackend::default(),
         long_form_chunking: default_long_form_chunking(),
         overlay_style: default_overlay_style(),
+        overlay_indicator: OverlayIndicator::default(),
     }
 }
 

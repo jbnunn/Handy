@@ -508,6 +508,15 @@
             "bottom": "In basso",
             "top": "In alto"
           }
+        },
+        "indicator": {
+          "title": "Animazione di registrazione",
+          "description": "L'animazione mostrata mentre tieni premuta la scorciatoia per registrare.",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

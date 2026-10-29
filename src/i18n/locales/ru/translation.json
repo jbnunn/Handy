@@ -508,6 +508,15 @@
             "bottom": "Снизу",
             "top": "Сверху"
           }
+        },
+        "indicator": {
+          "title": "Анимация записи",
+          "description": "Анимация, которая показывается, пока вы удерживаете сочетание клавиш для записи.",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

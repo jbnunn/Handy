@@ -508,6 +508,15 @@
             "bottom": "Alt",
             "top": "Üst"
           }
+        },
+        "indicator": {
+          "title": "Kayıt Animasyonu",
+          "description": "Kayıt için kısayolu basılı tutarken gösterilen animasyon.",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

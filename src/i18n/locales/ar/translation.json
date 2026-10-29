@@ -508,6 +508,15 @@
             "bottom": "أسفل",
             "top": "أعلى"
           }
+        },
+        "indicator": {
+          "title": "رسوم التسجيل المتحركة",
+          "description": "الرسوم المتحركة التي تظهر أثناء الضغط على الاختصار للتسجيل.",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

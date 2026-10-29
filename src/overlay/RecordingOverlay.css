@@ -410,17 +410,17 @@
   text-overflow: ellipsis;
 }
 
-/* Halo: the recording-state ring (Halo.tsx). Floats with no card, centered and
+/* Recording-state blob (ListeningBlob.tsx). Floats with no card, centered and
    flush to the same screen edge as the pill; absolutely placed so it can collapse
    out underneath the working pill as that pops in. */
-.halo {
+.blob {
   position: absolute;
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
   pointer-events: none;
 }
-.ov-stage.top .halo {
+.ov-stage.top .blob {
   top: 0;
   bottom: auto;
 }

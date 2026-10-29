@@ -23,8 +23,8 @@ use tauri::{AppHandle, Emitter, Manager};
 use crate::settings::APPLE_INTELLIGENCE_DEFAULT_MODEL_ID;
 use crate::settings::{
     self, get_settings, AutoSubmitKey, ChineseScript, ClipboardHandling, KeyboardImplementation,
-    LLMPrompt, OverlayPosition, OverlayStyle, PasteMethod, ShortcutActivation, ShortcutBinding,
-    SoundTheme, Theme, TypingTool, VadBackend, APPLE_INTELLIGENCE_PROVIDER_ID,
+    LLMPrompt, OverlayIndicator, OverlayPosition, OverlayStyle, PasteMethod, ShortcutActivation,
+    ShortcutBinding, SoundTheme, Theme, TypingTool, VadBackend, APPLE_INTELLIGENCE_PROVIDER_ID,
 };
 use crate::tray;
 
@@ -729,6 +729,24 @@ pub fn change_overlay_position_setting(app: AppHandle, position: String) -> Resu
     // Update overlay position without recreating window
     crate::utils::update_overlay_position(&app);
 
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn change_overlay_indicator_setting(app: AppHandle, indicator: String) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.overlay_indicator = match indicator.as_str() {
+        "halo" => OverlayIndicator::Halo,
+        "aurora" => OverlayIndicator::Aurora,
+        "nebula" => OverlayIndicator::Nebula,
+        other => {
+            warn!("Invalid overlay indicator '{}', defaulting to halo", other);
+            OverlayIndicator::Halo
+        }
+    };
+    // The overlay reads this on each show, so no window update is needed.
+    settings::write_settings(&app, settings);
     Ok(())
 }
 

@@ -3,7 +3,11 @@ import { useTranslation } from "react-i18next";
 import { Dropdown } from "../ui/Dropdown";
 import { SettingContainer } from "../ui/SettingContainer";
 import { useSettings } from "../../hooks/useSettings";
-import type { OverlayPosition, OverlayStyle } from "@/bindings";
+import type {
+  OverlayIndicator,
+  OverlayPosition,
+  OverlayStyle,
+} from "@/bindings";
 
 interface ShowOverlayProps {
   descriptionMode?: "inline" | "tooltip";
@@ -40,6 +44,15 @@ export const ShowOverlay: React.FC<ShowOverlayProps> = React.memo(
         label: t("settings.advanced.overlay.position.options.top"),
       },
     ];
+
+    const indicatorOptions = (["halo", "aurora", "nebula"] as const).map(
+      (value) => ({
+        value,
+        label: t(`settings.advanced.overlay.indicator.options.${value}`),
+      }),
+    );
+    const selectedIndicator: OverlayIndicator =
+      getSetting("overlay_indicator") || "halo";
 
     const selectedStyle = (getSetting("overlay_style") ||
       "live") as OverlayStyle;
@@ -80,6 +93,24 @@ export const ShowOverlay: React.FC<ShowOverlayProps> = React.memo(
                 updateSetting("overlay_position", value as OverlayPosition)
               }
               disabled={isUpdating("overlay_position")}
+            />
+          </SettingContainer>
+        )}
+
+        {selectedStyle !== "none" && (
+          <SettingContainer
+            title={t("settings.advanced.overlay.indicator.title")}
+            description={t("settings.advanced.overlay.indicator.description")}
+            descriptionMode={descriptionMode}
+            grouped={grouped}
+          >
+            <Dropdown
+              options={indicatorOptions}
+              selectedValue={selectedIndicator}
+              onSelect={(value) =>
+                updateSetting("overlay_indicator", value as OverlayIndicator)
+              }
+              disabled={isUpdating("overlay_indicator")}
             />
           </SettingContainer>
         )}

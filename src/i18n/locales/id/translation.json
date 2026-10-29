@@ -508,6 +508,15 @@
             "bottom": "Bawah",
             "top": "Atas"
           }
+        },
+        "indicator": {
+          "title": "Animasi Perekaman",
+          "description": "Animasi yang ditampilkan saat Anda menahan pintasan untuk merekam.",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

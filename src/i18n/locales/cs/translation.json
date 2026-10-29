@@ -508,6 +508,15 @@
             "bottom": "Dole",
             "top": "Nahoře"
           }
+        },
+        "indicator": {
+          "title": "Animace nahrávání",
+          "description": "Animace zobrazená, když držíte zkratku pro nahrávání.",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

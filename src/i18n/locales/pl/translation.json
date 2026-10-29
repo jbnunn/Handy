@@ -508,6 +508,15 @@
             "bottom": "Dół",
             "top": "Góra"
           }
+        },
+        "indicator": {
+          "title": "Animacja nagrywania",
+          "description": "Animacja wyświetlana, gdy przytrzymujesz skrót, aby nagrywać.",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

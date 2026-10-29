@@ -508,6 +508,15 @@
             "bottom": "Долу",
             "top": "Горе"
           }
+        },
+        "indicator": {
+          "title": "Анимация при запис",
+          "description": "Анимацията, която се показва, докато държите прекия път за запис.",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

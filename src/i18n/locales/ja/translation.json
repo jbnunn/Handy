@@ -508,6 +508,15 @@
             "bottom": "下",
             "top": "上"
           }
+        },
+        "indicator": {
+          "title": "録音アニメーション",
+          "description": "録音のためにショートカットを押している間に表示されるアニメーション。",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

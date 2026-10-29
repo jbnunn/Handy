@@ -508,6 +508,15 @@
             "bottom": "नीचे",
             "top": "ऊपर"
           }
+        },
+        "indicator": {
+          "title": "रिकॉर्डिंग एनिमेशन",
+          "description": "रिकॉर्ड करने के लिए शॉर्टकट दबाए रखने के दौरान दिखने वाला एनिमेशन।",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {

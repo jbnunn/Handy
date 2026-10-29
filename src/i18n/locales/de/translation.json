@@ -508,6 +508,15 @@
             "bottom": "Unten",
             "top": "Oben"
           }
+        },
+        "indicator": {
+          "title": "Aufnahme-Animation",
+          "description": "Die Animation, die angezeigt wird, während du die Tastenkombination zum Aufnehmen gedrückt hältst.",
+          "options": {
+            "halo": "Halo",
+            "aurora": "Aurora",
+            "nebula": "Nebula"
+          }
         }
       },
       "pasteMethod": {
