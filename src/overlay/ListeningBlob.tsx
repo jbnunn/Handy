@@ -227,7 +227,7 @@ const ListeningBlob: React.FC<ListeningBlobProps> = ({
   ready,
   levelRef,
 }) => {
-  const spec = BLOBS[indicator] ?? BLOBS.halo;
+  const spec = BLOBS[indicator] ?? BLOBS.aurora;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const targetRef = useRef(0);
   const thinkingRef = useRef(false);

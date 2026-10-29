@@ -66,7 +66,7 @@ const RecordingOverlay: React.FC = () => {
 
   const smoothedLevelsRef = useRef<number[]>(Array(16).fill(0));
   // Which recording animation to show (read from settings on each show).
-  const [indicator, setIndicator] = useState<OverlayIndicator>("halo");
+  const [indicator, setIndicator] = useState<OverlayIndicator>("aurora");
   // Raw overall mic level (0..1) for the blob, which smooths it per frame.
   const blobLevelRef = useRef(0);
   // Live-text scroll-back: the text region "sticks" to the newest line while the
@@ -100,7 +100,7 @@ const RecordingOverlay: React.FC = () => {
             setPosition(
               settings.data.overlay_position === "top" ? "top" : "bottom",
             );
-            setIndicator(settings.data.overlay_indicator ?? "halo");
+            setIndicator(settings.data.overlay_indicator ?? "aurora");
           }
         } catch {
           // Keep the previous/default placement if settings can't be read.

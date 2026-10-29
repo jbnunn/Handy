@@ -52,7 +52,7 @@ export const ShowOverlay: React.FC<ShowOverlayProps> = React.memo(
       }),
     );
     const selectedIndicator: OverlayIndicator =
-      getSetting("overlay_indicator") || "halo";
+      getSetting("overlay_indicator") || "aurora";
 
     const selectedStyle = (getSetting("overlay_style") ||
       "live") as OverlayStyle;

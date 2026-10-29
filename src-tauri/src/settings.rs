@@ -149,9 +149,9 @@ pub enum OverlayStyle {
 #[serde(rename_all = "lowercase")]
 pub enum OverlayIndicator {
     // `nebula` was retired; the alias keeps stores that picked it loading.
-    #[default]
     #[serde(alias = "nebula")]
     Halo,
+    #[default]
     Aurora,
     Opal,
 }

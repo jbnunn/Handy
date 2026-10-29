@@ -741,8 +741,11 @@ pub fn change_overlay_indicator_setting(app: AppHandle, indicator: String) -> Re
         "aurora" => OverlayIndicator::Aurora,
         "opal" => OverlayIndicator::Opal,
         other => {
-            warn!("Invalid overlay indicator '{}', defaulting to halo", other);
-            OverlayIndicator::Halo
+            warn!(
+                "Invalid overlay indicator '{}', defaulting to aurora",
+                other
+            );
+            OverlayIndicator::Aurora
         }
     };
     // The overlay reads this on each show, so no window update is needed.
