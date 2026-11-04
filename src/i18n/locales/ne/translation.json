@@ -510,6 +510,10 @@
             "top": "माथि"
           }
         },
+        "focusDim": {
+          "title": "Focus Darkness",
+          "description": "How dark the screen gets behind the animation in Focus mode."
+        },
         "indicator": {
           "title": "रेकर्डिङ एनिमेसन",
           "description": "रेकर्ड गर्न सर्टकट थिचिराख्दा देखिने एनिमेसन।",

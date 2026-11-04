@@ -510,6 +510,10 @@
             "top": "Atas"
           }
         },
+        "focusDim": {
+          "title": "Focus Darkness",
+          "description": "How dark the screen gets behind the animation in Focus mode."
+        },
         "indicator": {
           "title": "Animasi Perekaman",
           "description": "Animasi yang ditampilkan saat Anda menahan pintasan untuk merekam.",

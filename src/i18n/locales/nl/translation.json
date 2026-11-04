@@ -510,6 +510,10 @@
             "top": "Bovenkant"
           }
         },
+        "focusDim": {
+          "title": "Focus Darkness",
+          "description": "How dark the screen gets behind the animation in Focus mode."
+        },
         "indicator": {
           "title": "Opname-animatie",
           "description": "De animatie die wordt getoond terwijl je de sneltoets ingedrukt houdt om op te nemen.",

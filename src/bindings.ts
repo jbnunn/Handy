@@ -125,6 +125,14 @@ async changeOverlayIndicatorSetting(indicator: string) : Promise<Result<null, st
     else return { status: "error", error: e  as any };
 }
 },
+async changeFocusDimSetting(dim: number) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("change_focus_dim_setting", { dim }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async changeOverlayStyleSetting(style: string) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("change_overlay_style_setting", { style }) };
@@ -1100,7 +1108,11 @@ long_form_chunking?: boolean;
  * not gated on this — that follows model capability. Migrated from the old
  * `overlay_position` (position `none` → style `None`).
  */
-overlay_style?: OverlayStyle; overlay_indicator?: OverlayIndicator }
+overlay_style?: OverlayStyle; overlay_indicator?: OverlayIndicator; 
+/**
+ * How dark the Focus overlay dims the screen, 0.0 (clear) to 1.0 (black).
+ */
+focus_dim?: number }
 export type AudioDevice = { index: string; name: string; is_default: boolean }
 export type AutoSubmitKey = "enter" | "ctrl_enter" | "cmd_enter"
 export type AvailableAccelerators = { transcribe: string[]; gpu_devices: GpuDeviceOption[] }

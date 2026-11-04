@@ -69,6 +69,8 @@ const RecordingOverlay: React.FC = () => {
   const [indicator, setIndicator] = useState<OverlayIndicator>("aurora");
   // Focus style: the window covers the screen, dimmed, with the blob centered.
   const [focus, setFocus] = useState(false);
+  // How dark the Focus dim is, 0 (clear) to 1 (black).
+  const [focusDim, setFocusDim] = useState(0.8);
   // Raw overall mic level (0..1) for the blob, which smooths it per frame.
   const blobLevelRef = useRef(0);
   // Live-text scroll-back: the text region "sticks" to the newest line while the
@@ -104,6 +106,7 @@ const RecordingOverlay: React.FC = () => {
             );
             setIndicator(settings.data.overlay_indicator ?? "aurora");
             setFocus(settings.data.overlay_style === "focus");
+            setFocusDim(settings.data.focus_dim ?? 0.8);
           }
         } catch {
           // Keep the previous/default placement if settings can't be read.
@@ -248,7 +251,11 @@ const RecordingOverlay: React.FC = () => {
   // visible tree so React keeps the element and its fade-out can play.
   const stageClass = focus ? "focus" : position;
   const dim = focus && (
-    <div className={`ov-dim ${isVisible ? "show" : ""}`} aria-hidden="true" />
+    <div
+      className={`ov-dim ${isVisible ? "show" : ""}`}
+      style={{ "--focus-dim": focusDim } as React.CSSProperties}
+      aria-hidden="true"
+    />
   );
 
   if (!isVisible) {

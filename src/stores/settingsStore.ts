@@ -143,6 +143,7 @@ const settingUpdaters: {
     commands.changeOverlayPositionSetting(value as string),
   overlay_indicator: (value) =>
     commands.changeOverlayIndicatorSetting(value as string),
+  focus_dim: (value) => commands.changeFocusDimSetting(value as number),
   debug_mode: (value) => commands.changeDebugModeSetting(value as boolean),
   custom_words: (value) => commands.updateCustomWords(value as string[]),
   word_correction_threshold: (value) =>

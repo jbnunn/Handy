@@ -670,6 +670,7 @@ pub fn run(cli_args: CliArgs) {
             shortcut::change_spoken_languages_setting,
             shortcut::change_overlay_position_setting,
             shortcut::change_overlay_indicator_setting,
+            shortcut::change_focus_dim_setting,
             shortcut::change_overlay_style_setting,
             shortcut::change_debug_mode_setting,
             shortcut::change_word_correction_threshold_setting,

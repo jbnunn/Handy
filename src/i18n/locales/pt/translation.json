@@ -510,6 +510,10 @@
             "top": "Superior"
           }
         },
+        "focusDim": {
+          "title": "Focus Darkness",
+          "description": "How dark the screen gets behind the animation in Focus mode."
+        },
         "indicator": {
           "title": "Animação de gravação",
           "description": "A animação mostrada enquanto você mantém o atalho pressionado para gravar.",

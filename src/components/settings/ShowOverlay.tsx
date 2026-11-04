@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Dropdown } from "../ui/Dropdown";
+import { Slider } from "../ui/Slider";
 import { SettingContainer } from "../ui/SettingContainer";
 import { useSettings } from "../../hooks/useSettings";
 import type {
@@ -99,6 +100,21 @@ export const ShowOverlay: React.FC<ShowOverlayProps> = React.memo(
               disabled={isUpdating("overlay_position")}
             />
           </SettingContainer>
+        )}
+
+        {selectedStyle === "focus" && (
+          <Slider
+            value={getSetting("focus_dim") ?? 0.8}
+            onChange={(value: number) => updateSetting("focus_dim", value)}
+            min={0}
+            max={1}
+            step={0.05}
+            label={t("settings.advanced.overlay.focusDim.title")}
+            description={t("settings.advanced.overlay.focusDim.description")}
+            descriptionMode={descriptionMode}
+            grouped={grouped}
+            formatValue={(value) => `${Math.round(value * 100)}%`}
+          />
         )}
 
         {selectedStyle !== "none" && (

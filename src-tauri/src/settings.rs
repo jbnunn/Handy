@@ -558,6 +558,13 @@ pub struct AppSettings {
     pub overlay_style: OverlayStyle,
     #[serde(default)]
     pub overlay_indicator: OverlayIndicator,
+    /// How dark the Focus overlay dims the screen, 0.0 (clear) to 1.0 (black).
+    #[serde(default = "default_focus_dim")]
+    pub focus_dim: f32,
+}
+
+fn default_focus_dim() -> f32 {
+    0.8
 }
 
 fn default_model() -> String {
@@ -1051,6 +1058,7 @@ pub fn get_default_settings() -> AppSettings {
         long_form_chunking: default_long_form_chunking(),
         overlay_style: default_overlay_style(),
         overlay_indicator: OverlayIndicator::default(),
+        focus_dim: default_focus_dim(),
     }
 }
 

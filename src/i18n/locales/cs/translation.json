@@ -510,6 +510,10 @@
             "top": "Nahoře"
           }
         },
+        "focusDim": {
+          "title": "Focus Darkness",
+          "description": "How dark the screen gets behind the animation in Focus mode."
+        },
         "indicator": {
           "title": "Animace nahrávání",
           "description": "Animace zobrazená, když držíte zkratku pro nahrávání.",

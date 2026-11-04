@@ -510,6 +510,10 @@
             "top": "上"
           }
         },
+        "focusDim": {
+          "title": "Focus Darkness",
+          "description": "How dark the screen gets behind the animation in Focus mode."
+        },
         "indicator": {
           "title": "録音アニメーション",
           "description": "録音のためにショートカットを押している間に表示されるアニメーション。",

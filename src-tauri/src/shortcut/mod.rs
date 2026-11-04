@@ -755,6 +755,20 @@ pub fn change_overlay_indicator_setting(app: AppHandle, indicator: String) -> Re
 
 #[tauri::command]
 #[specta::specta]
+pub fn change_focus_dim_setting(app: AppHandle, dim: f32) -> Result<(), String> {
+    let mut settings = settings::get_settings(&app);
+    settings.focus_dim = if dim.is_finite() {
+        dim.clamp(0.0, 1.0)
+    } else {
+        0.8
+    };
+    // The overlay reads this on each show, so no window update is needed.
+    settings::write_settings(&app, settings);
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
 pub fn change_overlay_style_setting(app: AppHandle, style: String) -> Result<(), String> {
     let mut settings = settings::get_settings(&app);
     let parsed = match style.as_str() {
