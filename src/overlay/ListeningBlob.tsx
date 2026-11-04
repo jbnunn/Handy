@@ -12,7 +12,7 @@ const VERT = `attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }`
 
 const COMMON = `
 precision highp float;
-uniform vec2 res; uniform float t, lvl, show, think, pulse;
+uniform vec2 res; uniform float t, lvl, show, think, pulse, pad;
 float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 float noise(vec2 p){
   vec2 i = floor(p), f = fract(p), u = f * f * (3.0 - 2.0 * f);
@@ -31,13 +31,14 @@ vec4 light(vec3 c){ c = max(c, 0.0); return vec4(min(c, 1.0), min(max(c.r, max(c
 // while thinking it holds still and breathes, with a faint color filling it.
 const HALO = `${COMMON}
 void main(){
-  vec2 p = (gl_FragCoord.xy - 0.5 * res) / (0.5 * min(res.x, res.y));
+  // pad > 1 enlarges the canvas around the same-size shape (room to pulse).
+  vec2 p = (gl_FragCoord.xy - 0.5 * res) / (0.5 * min(res.x, res.y)) * pad;
   float r = length(p), th = atan(p.y, p.x);
   float a = th - t * 2.6; // spin, ~0.4 rev/s: shape, color and bright head ride on it
   float open = 1.0 - pow(1.0 - show, 3.0);
-  float R = 0.6 * (0.35 + 0.65 * open)
+  float R = 0.55 * (0.35 + 0.65 * open)
           + 0.04 * sin(3.0 * a) + 0.025 * sin(6.0 * a + t * 0.8)
-          + lvl * (0.05 + 0.07 * (0.5 + 0.5 * sin(4.0 * a + t * 3.0)))
+          + lvl * (0.1 + 0.08 * (0.5 + 0.5 * sin(4.0 * a + t * 3.0)))
           + think * 0.025 * pulse;
   float d = abs(r - R);
   float w = 0.05 + 0.03 * lvl;
@@ -50,7 +51,7 @@ void main(){
   float inside = 1.0 - smoothstep(R * 0.7, R, r);
   col += hsl(0.62 + 0.12 * p.y - 0.06 * p.x, 0.8, 0.62) * inside * think * (0.1 + 0.2 * pulse);
   // Fade the outer glow before the canvas edge so it never shows a hard border.
-  gl_FragColor = light(col * show * smoothstep(1.0, 0.8, r));
+  gl_FragColor = light(col * show * smoothstep(1.0, 0.8, r / pad));
 }`;
 
 // Three luminous ribbons drifting sideways. They spread out from the center on
@@ -58,11 +59,12 @@ void main(){
 // still and breathe over a faint band of color.
 const AURORA = `${COMMON}
 void main(){
-  vec2 p = (gl_FragCoord.xy - 0.5 * res) / (0.5 * res.x);
+  vec2 p = (gl_FragCoord.xy - 0.5 * res) / (0.5 * res.x) * pad;
   float x = p.x, y = p.y * 2.0;
   float reach = max(show, 0.001);
-  float env = smoothstep(0.98, 0.4, abs(x) / reach) * smoothstep(0.75, 0.2, abs(y));
-  float amp = 0.45 + 1.5 * lvl;
+  float env = smoothstep(0.98, 0.4, abs(x) / pad / reach)
+            * smoothstep(0.75, 0.2, abs(y) / pad);
+  float amp = 0.4 + 2.0 * lvl;
   vec3 col = vec3(0.0);
   for (int k = 0; k < 3; k++) {
     float i = float(k);
@@ -77,7 +79,7 @@ void main(){
   }
   col *= 1.0 - think * (0.35 - 0.35 * pulse);
   col += hsl(0.55 + x * 0.2, 0.8, 0.6) * exp(-pow(y / 0.3, 2.0)) * think * (0.08 + 0.18 * pulse);
-  gl_FragColor = light(col * env * (0.95 + 0.6 * lvl) * show);
+  gl_FragColor = light(col * env * (0.85 + 0.9 * lvl) * show);
 }`;
 
 // A soft, glowing orb of swirling color. There is no surface or hard outline:
@@ -88,14 +90,14 @@ const OPAL = `${COMMON}
 void main(){
   // Shape units: 1.0 = 100px at the 160px canvas (canvas edge at 0.8).
   float scale = 0.5 * min(res.x, res.y) * 1.25;
-  vec2 p = (gl_FragCoord.xy - 0.5 * res) / scale;
+  vec2 p = (gl_FragCoord.xy - 0.5 * res) / scale * pad;
   float r = length(p), th = atan(p.y, p.x);
   float open = 1.0 - pow(1.0 - show, 3.0);
   // Smaller than the canvas leaves room for the glow to fade out fully.
   float R = 0.36 * (0.3 + 0.7 * open)
           + 0.03 * sin(3.0 * th + t * 0.9) + 0.02 * sin(5.0 * th - t * 1.3)
           + 0.05 * (noise(p * 2.0 + t * 0.3) - 0.5)
-          + lvl * (0.06 + 0.04 * sin(4.0 * th + t * 2.5))
+          + lvl * (0.11 + 0.04 * sin(4.0 * th + t * 2.5))
           + think * 0.025 * pulse;
   // The glow starts fading a little inside the outline, so no rim forms.
   float d = r - R, od = max(d + 0.07, 0.0);
@@ -111,10 +113,10 @@ void main(){
   // Angle term fades out toward the center so it doesn't pinch to a point.
   float hue = 0.62 + 0.08 * sin(th + t * 0.5) * smoothstep(0.0, 0.3, r)
             + 0.18 * swirl + 0.1 * r + 0.08 * sin(t * 0.15);
-  vec3 col = hsl(hue, 0.85, 0.58) * I * (0.85 + 0.3 * lvl);
+  vec3 col = hsl(hue, 0.85, 0.58) * I * (0.8 + 0.25 * lvl);
   col *= 1.0 - think * (0.15 - 0.25 * pulse);
   // Fade the outer glow before the canvas edge so it never shows a hard border.
-  gl_FragColor = light(col * show * smoothstep(0.8, 0.6, r));
+  gl_FragColor = light(col * show * smoothstep(0.8, 0.6, r / pad));
 }`;
 
 interface BlobSpec {
@@ -140,6 +142,7 @@ type Renderer = (
   show: number,
   think: number,
   pulse: number,
+  pad: number,
 ) => void;
 
 function createRenderer(
@@ -183,7 +186,8 @@ function createRenderer(
   const uShow = gl.getUniformLocation(prog, "show");
   const uThink = gl.getUniformLocation(prog, "think");
   const uPulse = gl.getUniformLocation(prog, "pulse");
-  return (w, h, t, lvl, show, think, pulse) => {
+  const uPad = gl.getUniformLocation(prog, "pad");
+  return (w, h, t, lvl, show, think, pulse, pad) => {
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w;
       canvas.height = h;
@@ -197,6 +201,7 @@ function createRenderer(
     gl.uniform1f(uShow, show);
     gl.uniform1f(uThink, think);
     gl.uniform1f(uPulse, pulse);
+    gl.uniform1f(uPad, pad);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   };
 }
@@ -222,6 +227,10 @@ interface ListeningBlobProps {
   levelRef: React.MutableRefObject<number>;
   /** Size multiplier (focus mode draws it larger). Fixed for a mount. */
   scale?: number;
+  /** How hard the voice drives the shape; above 1 exaggerates the pulse. */
+  punch?: number;
+  /** Canvas enlargement around the same-size shape, so a big pulse isn't clipped. */
+  pad?: number;
 }
 
 const ListeningBlob: React.FC<ListeningBlobProps> = ({
@@ -231,10 +240,12 @@ const ListeningBlob: React.FC<ListeningBlobProps> = ({
   ready,
   levelRef,
   scale = 1,
+  punch = 1,
+  pad = 1,
 }) => {
   const spec = BLOBS[indicator] ?? BLOBS.aurora;
-  const width = spec.width * scale;
-  const height = spec.height * scale;
+  const width = spec.width * scale * pad;
+  const height = spec.height * scale * pad;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const targetRef = useRef(0);
   const thinkingRef = useRef(false);
@@ -258,6 +269,11 @@ const ListeningBlob: React.FC<ListeningBlobProps> = ({
     let soft = 0;
     let think = 0;
     let breath = 0;
+    // The raw level sits high even in a quiet room (room tone already reads
+    // ~0.75), so speech and silence both pinned the shape at full size. Track
+    // the room's floor and the voice's recent peak, and pulse on the gap.
+    let floor = -1;
+    let peak = 0;
 
     const frame = (now: number) => {
       const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
@@ -273,20 +289,29 @@ const ListeningBlob: React.FC<ListeningBlobProps> = ({
       const pulse = 0.5 - 0.5 * Math.cos(breath * Math.PI * 1.5);
       // Open fast, collapse faster: the window hides ~300ms after release.
       show += (target - show) * (1 - Math.exp(-dt * (target > show ? 9 : 12)));
-      const goal =
-        target > 0 && !thinkGoal ? Math.min(1, levelRef.current * 1.4) : 0;
-      // Fast attack, slower release, so syllables punch and pauses settle.
-      lvl += (goal - lvl) * (1 - Math.exp(-dt * (goal > lvl ? 18 : 7)));
-      soft += (lvl - soft) * (1 - Math.exp(-dt * 4));
+      const raw = levelRef.current;
+      if (floor < 0) floor = raw;
+      // Floor drops to quiet moments quickly and creeps up slowly, so it
+      // settles on room tone instead of following speech.
+      floor += (raw - floor) * (1 - Math.exp(-dt * (raw < floor ? 6 : 0.25)));
+      // Peak jumps to loud moments and relaxes over a few seconds.
+      peak = Math.max(raw, peak - dt * 0.08);
+      const span = Math.max(peak - floor, 0.12);
+      const rel = Math.min(1, Math.max(0, (raw - floor) / span));
+      const goal = target > 0 && !thinkGoal ? rel : 0;
+      // Fast attack, quick release, so each syllable reads as its own pulse.
+      lvl += (goal - lvl) * (1 - Math.exp(-dt * (goal > lvl ? 22 : 10)));
+      soft += (lvl - soft) * (1 - Math.exp(-dt * 8));
       const dpr = window.devicePixelRatio || 1;
       render?.(
         Math.round(width * dpr),
         Math.round(height * dpr),
         clock,
-        spec.soft ? soft : lvl,
+        (spec.soft ? soft : lvl) * punch,
         show,
         think,
         pulse,
+        pad,
       );
       if (target === 0 && show < 0.002) {
         running = false; // idle: stop drawing until the next show
@@ -307,7 +332,7 @@ const ListeningBlob: React.FC<ListeningBlobProps> = ({
       cancelAnimationFrame(raf);
       loopRef.current = null;
     };
-  }, [spec, width, height, levelRef]);
+  }, [spec, width, height, levelRef, punch, pad]);
 
   useEffect(() => {
     if (active) loopRef.current?.();

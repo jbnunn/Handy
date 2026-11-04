@@ -240,6 +240,8 @@ const RecordingOverlay: React.FC = () => {
       key={`${indicator}-${focus}`}
       indicator={indicator}
       scale={focus ? 2 : 1}
+      punch={focus ? 1.5 : 1}
+      pad={focus ? 1.6 : 1}
       active={blobActive}
       thinking={blobThinking}
       ready={captureReady}
